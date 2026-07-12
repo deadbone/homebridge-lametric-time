@@ -1,0 +1,295 @@
+{
+  "pluginAlias": "LaMetricTime",
+  "pluginType": "platform",
+  "singular": true,
+  "strictValidation": true,
+  "schema": {
+    "type": "object",
+    "required": ["platform", "name", "devices", "messages"],
+    "additionalProperties": false,
+    "properties": {
+      "platform": {
+        "type": "string",
+        "default": "LaMetricTime"
+      },
+      "name": {
+        "title": "Platform Name",
+        "type": "string",
+        "default": "LaMetric Time",
+        "description": "Name shown by Homebridge for this platform instance."
+      },
+      "debug": {
+        "title": "Debug Logging",
+        "type": "boolean",
+        "default": false
+      },
+      "queueStrategy": {
+        "title": "Queue Strategy",
+        "type": "string",
+        "default": "sequential",
+        "oneOf": [{ "title": "Sequential per device", "enum": ["sequential"] }]
+      },
+      "maxQueueSize": {
+        "title": "Maximum Queue Size",
+        "type": "integer",
+        "default": 50,
+        "minimum": 1,
+        "maximum": 500
+      },
+      "duplicateStrategy": {
+        "title": "Duplicate Notification Behavior",
+        "type": "string",
+        "default": "drop",
+        "oneOf": [
+          { "title": "Add duplicate notifications", "enum": ["enqueue"] },
+          { "title": "Drop duplicate notifications already queued", "enum": ["drop"] },
+          { "title": "Replace queued duplicate notifications", "enum": ["replace"] }
+        ]
+      },
+      "globalDelayMs": {
+        "title": "Global Delay Between Calls",
+        "type": "integer",
+        "default": 250,
+        "minimum": 0,
+        "maximum": 60000,
+        "description": "Minimum delay in milliseconds between two API calls to the same LaMetric."
+      },
+      "testSwitch": {
+        "title": "Expose Global Test Switch",
+        "type": "boolean",
+        "default": false
+      },
+      "devices": {
+        "title": "LaMetric Devices",
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "type": "object",
+          "required": ["id", "name", "host", "apiKey"],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "title": "Internal ID",
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$",
+              "description": "Stable internal identifier used by messages. Do not change it after HomeKit accessories are created."
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "host": {
+              "title": "Host",
+              "type": "string",
+              "description": "IP address or DNS name only. Do not enter a full URL."
+            },
+            "protocol": {
+              "title": "Protocol",
+              "type": "string",
+              "default": "http",
+              "oneOf": [
+                { "title": "HTTP local API, port 8080", "enum": ["http"] },
+                { "title": "HTTPS local API, port 4343", "enum": ["https"] }
+              ]
+            },
+            "port": {
+              "title": "Port",
+              "type": "integer",
+              "default": 8080,
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "apiKey": {
+              "title": "Local API Key",
+              "type": "string",
+              "format": "password",
+              "description": "LaMetric local API key. It is sent only to the configured local device using HTTP Basic auth user dev."
+            },
+            "timeoutMs": {
+              "title": "HTTP Timeout",
+              "type": "integer",
+              "default": 5000,
+              "minimum": 250,
+              "maximum": 60000
+            },
+            "retryCount": {
+              "title": "Retry Count",
+              "type": "integer",
+              "default": 2,
+              "minimum": 0,
+              "maximum": 5
+            },
+            "retryBackoffMs": {
+              "title": "Retry Backoff",
+              "type": "integer",
+              "default": 500,
+              "minimum": 0,
+              "maximum": 30000
+            }
+          }
+        }
+      },
+      "messages": {
+        "title": "Messages",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["id", "name", "deviceIds", "frames"],
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "title": "Internal ID",
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$",
+              "description": "Stable identifier used to generate the HomeKit accessory UUID."
+            },
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "deviceIds": {
+              "title": "Target Device IDs",
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              },
+              "description": "IDs of LaMetric devices configured above."
+            },
+            "exposeSwitch": {
+              "title": "Expose HomeKit Switch",
+              "type": "boolean",
+              "default": true
+            },
+            "autoResetMs": {
+              "title": "Auto Reset Delay",
+              "type": "integer",
+              "default": 1000,
+              "minimum": 100,
+              "maximum": 60000
+            },
+            "cooldownMs": {
+              "title": "Cooldown",
+              "type": "integer",
+              "default": 5000,
+              "minimum": 0,
+              "maximum": 86400000
+            },
+            "priority": {
+              "title": "Priority",
+              "type": "string",
+              "default": "info",
+              "oneOf": [
+                { "title": "Info", "enum": ["info"] },
+                { "title": "Warning", "enum": ["warning"] },
+                { "title": "Critical", "enum": ["critical"] }
+              ]
+            },
+            "iconType": {
+              "title": "Notification Icon Type",
+              "type": "string",
+              "default": "none",
+              "oneOf": [
+                { "title": "None", "enum": ["none"] },
+                { "title": "Info", "enum": ["info"] },
+                { "title": "Alert", "enum": ["alert"] }
+              ]
+            },
+            "cycles": {
+              "title": "Display Cycles",
+              "type": "integer",
+              "default": 1,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "value": {
+              "title": "Default Template Value",
+              "type": "string"
+            },
+            "frames": {
+              "title": "Frames",
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["text"],
+                "additionalProperties": false,
+                "properties": {
+                  "text": {
+                    "title": "Text",
+                    "type": "string",
+                    "description": "Supports {{date}}, {{time}}, {{name}}, and {{value}}."
+                  },
+                  "icon": {
+                    "title": "Icon ID",
+                    "type": "string",
+                    "description": "LaMetric icon ID such as i1234 for static icons or a1234 for animated icons."
+                  },
+                  "order": {
+                    "title": "Order",
+                    "type": "integer",
+                    "default": 0,
+                    "minimum": 0,
+                    "maximum": 999
+                  }
+                }
+              }
+            },
+            "sound": {
+              "title": "Sound",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "enabled": {
+                  "title": "Enable Sound",
+                  "type": "boolean",
+                  "default": false
+                },
+                "category": {
+                  "title": "Category",
+                  "type": "string",
+                  "default": "notifications",
+                  "condition": { "functionBody": "return model.sound && model.sound.enabled === true;" },
+                  "oneOf": [
+                    { "title": "Notifications", "enum": ["notifications"] },
+                    { "title": "Alarms", "enum": ["alarms"] }
+                  ]
+                },
+                "id": {
+                  "title": "Sound ID",
+                  "type": "string",
+                  "condition": { "functionBody": "return model.sound && model.sound.enabled === true;" }
+                },
+                "repeat": {
+                  "title": "Repeat",
+                  "type": "integer",
+                  "default": 1,
+                  "minimum": 0,
+                  "maximum": 20,
+                  "condition": { "functionBody": "return model.sound && model.sound.enabled === true;" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "layout": [
+    {
+      "type": "section",
+      "title": "General Settings",
+      "items": ["name", "debug", "queueStrategy", "maxQueueSize", "duplicateStrategy", "globalDelayMs", "testSwitch"]
+    },
+    {
+      "type": "section",
+      "title": "LaMetric Devices",
+      "items": ["devices"]
+    },
+    {
+      "type": "section",
+      "title": "Messages",
+      "items": ["messages"]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "homebridge-lametric-time",
+  "displayName": "LaMetric TIME",
+  "type": "module",
+  "version": "0.1.0-alpha.0",
+  "private": true,
+  "description": "Homebridge dynamic platform plugin for sending local LaMetric TIME notifications.",
+  "author": "Thierry Lubrez",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/thierrylubrez/homebridge-lametric-time#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thierrylubrez/homebridge-lametric-time.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thierrylubrez/homebridge-lametric-time/issues"
+  },
+  "keywords": [
+    "homebridge-plugin",
+    "homebridge",
+    "lametric",
+    "lametric-time",
+    "homekit"
+  ],
+  "main": "dist/index.js",
+  "files": [
+    "dist",
+    "config.schema.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "homebridge": "^1.6.0 || ^2.0.0",
+    "node": "^22.12.0 || ^24.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf dist coverage",
+    "build": "rimraf dist && tsc -p tsconfig.json",
+    "lint": "eslint . --max-warnings=0",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run lint && npm run build && npm test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.0.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "eslint": "^10.0.0",
+    "homebridge": "^2.0.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.36.0",
+    "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+    "homebridge": "^1.6.0 || ^2.0.0"
+  }
+}

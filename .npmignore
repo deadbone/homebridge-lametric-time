@@ -1,0 +1,7 @@
+src/
+test/
+coverage/
+.github/
+tsconfig*.json
+eslint.config.js
+vitest.config.ts
