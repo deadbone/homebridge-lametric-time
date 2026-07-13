@@ -1,8 +1,10 @@
 # homebridge-lametric-time-deadbone
 
+![Plugin icon](assets/plugin-icon.png)
+
 Dynamic Homebridge platform plugin for sending local notifications to one or more LaMetric TIME clocks.
 
-> Alpha release: this plugin is versioned as `0.1.0-alpha.0`. It has automated tests and compiles, but it still needs validation with real LaMetric TIME hardware before being considered stable.
+> Alpha release: this plugin is versioned as `0.1.0-alpha.2`. It has automated tests and compiles, but it still needs validation with real LaMetric TIME hardware before being considered stable.
 
 The plugin uses the LaMetric Device API v2 local endpoint:
 
