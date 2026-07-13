@@ -62,8 +62,11 @@
       "devices": {
         "title": "LaMetric Devices",
         "type": "array",
+        "default": [],
+        "buttonText": "Add LaMetric Device",
         "minItems": 1,
         "items": {
+          "title": "LaMetric Device",
           "type": "object",
           "required": ["id", "name", "host", "apiKey"],
           "additionalProperties": false,
@@ -132,7 +135,10 @@
       "messages": {
         "title": "Messages",
         "type": "array",
+        "default": [],
+        "buttonText": "Add Message",
         "items": {
+          "title": "Message",
           "type": "object",
           "required": ["id", "name", "deviceIds", "frames"],
           "additionalProperties": false,
@@ -150,6 +156,8 @@
             "deviceIds": {
               "title": "Target Device IDs",
               "type": "array",
+              "default": [],
+              "buttonText": "Add Target Device ID",
               "minItems": 1,
               "items": {
                 "type": "string"
@@ -209,8 +217,11 @@
             "frames": {
               "title": "Frames",
               "type": "array",
+              "default": [],
+              "buttonText": "Add Frame",
               "minItems": 1,
               "items": {
+                "title": "Frame",
                 "type": "object",
                 "required": ["text"],
                 "additionalProperties": false,
