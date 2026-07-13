@@ -286,21 +286,94 @@
       }
     }
   },
-  "layout": [
+  "form": [
     {
-      "type": "section",
+      "type": "fieldset",
+      "expandable": true,
       "title": "General Settings",
       "items": ["name", "debug", "queueStrategy", "maxQueueSize", "duplicateStrategy", "globalDelayMs", "testSwitch"]
     },
     {
-      "type": "section",
+      "type": "fieldset",
+      "expandable": true,
       "title": "LaMetric Devices",
-      "items": ["devices"]
+      "items": [
+        {
+          "key": "devices",
+          "type": "array",
+          "items": [
+            "devices[].id",
+            "devices[].name",
+            "devices[].host",
+            "devices[].protocol",
+            "devices[].port",
+            "devices[].apiKey",
+            "devices[].timeoutMs",
+            "devices[].retryCount",
+            "devices[].retryBackoffMs"
+          ]
+        }
+      ]
     },
     {
-      "type": "section",
+      "type": "fieldset",
+      "expandable": true,
       "title": "Messages",
-      "items": ["messages"]
+      "items": [
+        {
+          "key": "messages",
+          "type": "array",
+          "items": [
+            "messages[].id",
+            "messages[].name",
+            {
+              "key": "messages[].deviceIds",
+              "type": "array",
+              "items": {
+                "title": "Target Device ID",
+                "type": "string"
+              }
+            },
+            "messages[].exposeSwitch",
+            "messages[].autoResetMs",
+            "messages[].cooldownMs",
+            "messages[].priority",
+            "messages[].iconType",
+            "messages[].cycles",
+            "messages[].value",
+            {
+              "key": "messages[].frames",
+              "type": "array",
+              "items": [
+                "messages[].frames[].text",
+                "messages[].frames[].icon",
+                "messages[].frames[].order"
+              ]
+            },
+            {
+              "key": "messages[]",
+              "type": "fieldset",
+              "expandable": true,
+              "title": "Sound",
+              "items": [
+                "sound.enabled",
+                {
+                  "key": "sound.category",
+                  "condition": { "functionBody": "return model.messages && model.messages[arrayIndices[0]].sound && model.messages[arrayIndices[0]].sound.enabled === true;" }
+                },
+                {
+                  "key": "sound.id",
+                  "condition": { "functionBody": "return model.messages && model.messages[arrayIndices[0]].sound && model.messages[arrayIndices[0]].sound.enabled === true;" }
+                },
+                {
+                  "key": "sound.repeat",
+                  "condition": { "functionBody": "return model.messages && model.messages[arrayIndices[0]].sound && model.messages[arrayIndices[0]].sound.enabled === true;" }
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
