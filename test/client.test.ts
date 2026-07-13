@@ -32,6 +32,12 @@ describe('LaMetricClient', () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
+  it('includes LaMetric error details for bad requests', async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(response(400, { errors: ['invalid payload'] }));
+    const client = new LaMetricClient(sampleConfig.devices[0], { fetchImpl });
+    await expect(client.sendNotification(payload)).rejects.toThrow(/invalid payload/u);
+  });
+
   it('maps network timeout', async () => {
     const fetchImpl = vi.fn<typeof fetch>((_input, init) => {
       init?.signal?.dispatchEvent(new Event('abort'));

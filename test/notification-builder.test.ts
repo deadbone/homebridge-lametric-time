@@ -28,4 +28,12 @@ describe('NotificationBuilder', () => {
     });
     expect(payload.model.sound).toBeUndefined();
   });
+
+  it('omits icon_type when icon type is none', () => {
+    const payload = new NotificationBuilder().build({
+      ...sampleMessage,
+      iconType: 'none',
+    });
+    expect(payload.icon_type).toBeUndefined();
+  });
 });

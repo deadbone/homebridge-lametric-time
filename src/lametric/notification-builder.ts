@@ -19,7 +19,7 @@ export class NotificationBuilder {
 
     return {
       priority: message.priority,
-      icon_type: message.iconType,
+      ...(message.iconType !== 'none' ? { icon_type: message.iconType } : {}),
       model: {
         cycles: message.cycles,
         frames,

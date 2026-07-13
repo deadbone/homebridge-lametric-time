@@ -108,6 +108,8 @@ export class LaMetricClient {
   }
 
   private async mapHttpError(response: Response): Promise<LaMetricError> {
+    const responseText = await safeResponseText(response);
+    const suffix = responseText ? `: ${responseText}` : '';
     switch (response.status) {
       case 401:
         return new LaMetricAuthenticationError(`[${this.device.name}] Authentication refused by LaMetric device`);
@@ -117,10 +119,18 @@ export class LaMetricClient {
         return new LaMetricRateLimitError(`[${this.device.name}] LaMetric rate limit exceeded`);
       default:
         if (response.status >= 500) {
-          return new LaMetricError(`[${this.device.name}] LaMetric returned HTTP ${response.status}`, response.status, true);
+          return new LaMetricError(`[${this.device.name}] LaMetric returned HTTP ${response.status}${suffix}`, response.status, true);
         }
-        return new LaMetricError(`[${this.device.name}] LaMetric returned HTTP ${response.status}`, response.status, false);
+        return new LaMetricError(`[${this.device.name}] LaMetric returned HTTP ${response.status}${suffix}`, response.status, false);
     }
+  }
+}
+
+async function safeResponseText(response: Response): Promise<string> {
+  try {
+    return (await response.text()).trim();
+  } catch {
+    return '';
   }
 }
 
