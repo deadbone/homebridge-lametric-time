@@ -2,9 +2,11 @@
 
 ![Plugin icon](assets/plugin-icon.png)
 
-Dynamic Homebridge platform plugin for sending local notifications to one or more LaMetric TIME clocks.
+Dynamic Homebridge platform plugin for sending local notifications to one or more LaMetric TIME V2 clocks.
 
-> Beta release: this plugin is versioned as `0.1.0-beta.1`. It has automated tests and compiles, but it should still be validated with real LaMetric TIME hardware before being considered stable.
+> Beta release: this plugin is versioned as `0.1.0-beta.2`. It has automated tests and compiles, but it should still be validated with real LaMetric TIME V2 hardware before being considered stable.
+
+> Compatibility notice: this plugin targets LaMetric TIME V2 / 2022+ devices. The first-generation LaMetric TIME is not supported by this plugin because its local API key/authentication flow can differ and has not been validated reliably.
 
 The plugin uses the LaMetric Device API v2 local endpoint:
 
@@ -18,6 +20,7 @@ HTTPS on port `4343` can be configured, but the plugin does not disable TLS veri
 
 - Homebridge: `^1.6.0 || ^2.0.0`
 - Node.js: `^22.12.0 || ^24.0.0`
+- LaMetric: LaMetric TIME V2 / 2022+ devices only
 - Plugin type: dynamic platform
 - Module format: ESM
 
@@ -65,7 +68,7 @@ The plugin ships a `config.schema.json`, so Homebridge UI can render the configu
 Sections:
 
 - General settings: debug logging, queue size, duplicate behavior, global delay, optional test switch.
-- LaMetric devices: internal ID, display name, host, protocol, port, API key, timeout, retries.
+- LaMetric TIME V2 devices: internal ID, display name, host, protocol, port, API key, timeout, retries.
 - Messages: internal ID, name, target devices, HomeKit switch exposure, auto-reset, cooldown, priority, icon type, cycles, frames, optional sound.
 
 The schema can mask the API key with `format: password`. Per-device connection test buttons are not included in this version because the standard schema form does not provide a reliable server-side button flow by itself.

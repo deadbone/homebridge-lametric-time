@@ -16,7 +16,7 @@
         "title": "Platform Name",
         "type": "string",
         "default": "LaMetric Time",
-        "description": "Name shown by Homebridge for this platform instance."
+        "description": "Name shown by Homebridge for this platform instance. This plugin targets LaMetric TIME V2 / 2022+ devices only."
       },
       "debug": {
         "title": "Debug Logging",
@@ -60,13 +60,14 @@
         "default": false
       },
       "devices": {
-        "title": "LaMetric Devices",
+        "title": "LaMetric TIME V2 Devices",
         "type": "array",
+        "description": "Only add LaMetric TIME V2 / 2022+ devices. First-generation LaMetric TIME devices are not supported by this plugin.",
         "default": [],
-        "buttonText": "Add LaMetric Device",
+        "buttonText": "Add LaMetric TIME V2 Device",
         "minItems": 1,
         "items": {
-          "title": "LaMetric Device",
+          "title": "LaMetric TIME V2 Device",
           "type": "object",
           "required": ["id", "name", "host", "apiKey"],
           "additionalProperties": false,
@@ -106,7 +107,7 @@
               "title": "Local API Key",
               "type": "string",
               "format": "password",
-              "description": "LaMetric local API key. It is sent only to the configured local device using HTTP Basic auth user dev."
+              "description": "LaMetric TIME V2 local API key. It is sent only to the configured local device using HTTP Basic auth user dev."
             },
             "timeoutMs": {
               "title": "HTTP Timeout",
@@ -297,7 +298,7 @@
     {
       "type": "fieldset",
       "expandable": true,
-      "title": "LaMetric Devices",
+      "title": "LaMetric TIME V2 Devices",
       "items": [
         {
           "key": "devices",
