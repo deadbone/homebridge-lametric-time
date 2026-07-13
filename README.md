@@ -2,7 +2,7 @@
 
 Dynamic Homebridge platform plugin for sending local notifications to one or more LaMetric TIME clocks.
 
-> Alpha release: this plugin is published as `0.1.0-alpha.0`. It has automated tests and compiles, but it still needs validation with real LaMetric TIME hardware before being considered stable.
+> Alpha release: this plugin is versioned as `0.1.0-alpha.0`. It has automated tests and compiles, but it still needs validation with real LaMetric TIME hardware before being considered stable.
 
 The plugin uses the LaMetric Device API v2 local endpoint:
 
@@ -23,16 +23,30 @@ Homebridge 2 compatibility is based on the official dynamic platform model and a
 
 ## Installation
 
+### Install From GitHub
+
+The package is currently alpha and not published to npm. Install it directly from GitHub:
+
 ```sh
-npm install -g homebridge-lametric-time
+npm install -g git+https://github.com/deadbone/homebridge-lametric-time.git
 ```
 
-During development:
+The Git install runs the package `prepare` script, which compiles TypeScript into `dist/` so Homebridge can load `dist/index.js`.
+
+### Local Development Install
 
 ```sh
 npm install
 npm run build
 npm link
+```
+
+### Future npm Install
+
+After the package is published to npm, installation will use:
+
+```sh
+npm install -g homebridge-lametric-time
 ```
 
 ## LaMetric Local API Key
@@ -156,7 +170,7 @@ The plugin keeps in-memory queues per LaMetric device:
 - processing is sequential per device;
 - different devices can process independently;
 - queue size is limited;
-- cooldown is applied per message;
+- cooldown is applied per message after a successful send only;
 - duplicates can be enqueued, dropped, or replaced;
 - failures are logged and the queue continues.
 
@@ -190,6 +204,7 @@ npm install
 npm run lint
 npm run build
 npm test
+npm run verify:pack
 ```
 
 Tests mock the LaMetric API and do not require a real device.
@@ -200,7 +215,7 @@ Before publishing:
 
 1. Set `private` to `false` or remove it from `package.json`.
 2. Confirm repository, bugs, homepage, author, and license metadata.
-3. Run `npm run lint`, `npm run build`, and `npm test`.
+3. Run `npm run lint`, `npm run build`, `npm test`, and `npm run verify:pack`.
 4. Publish with `npm publish`.
 
 For a scoped package, use `npm publish --access=public` the first time.

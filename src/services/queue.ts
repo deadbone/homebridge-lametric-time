@@ -5,14 +5,13 @@ export interface QueueTask {
   readonly key: string;
   readonly label: string;
   readonly payload: LaMetricNotificationPayload;
-  readonly run: () => Promise<void>;
+  readonly cooldownMs: number;
+  readonly run: () => Promise<boolean>;
 }
 
 export interface DeviceQueueOptions {
   readonly maxSize: number;
   readonly duplicateStrategy: QueueDuplicateStrategy;
-  readonly cooldownMs: number;
-  readonly sleep?: (ms: number) => Promise<void>;
 }
 
 export class DeviceQueue {
@@ -78,13 +77,16 @@ export class DeviceQueue {
         if (!task) {
           return;
         }
+        let succeeded = false;
         try {
           this.inFlightKeys.add(task.key);
-          await task.run();
+          succeeded = await task.run();
+        } catch {
+          succeeded = false;
         } finally {
           this.inFlightKeys.delete(task.key);
-          if (this.options.cooldownMs > 0) {
-            this.cooldowns.set(task.key, Date.now() + this.options.cooldownMs);
+          if (succeeded && task.cooldownMs > 0) {
+            this.cooldowns.set(task.key, Date.now() + task.cooldownMs);
           }
         }
       }

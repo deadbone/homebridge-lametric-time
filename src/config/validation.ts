@@ -1,7 +1,6 @@
 import type {
   LaMetricDeviceConfig,
   LaMetricMessageConfig,
-  LaMetricPlatformConfig,
   MessageFrameConfig,
   NormalizedDeviceConfig,
   NormalizedMessageConfig,
@@ -14,6 +13,7 @@ import { assertSafeHost, normalizeLaMetricText, validateIcon } from '../utils/se
 const PRIORITIES = new Set<NotificationPriority>(['info', 'warning', 'critical']);
 const ICON_TYPES = new Set<IconType>(['none', 'info', 'alert']);
 const SOUND_CATEGORIES = new Set<SoundCategory>(['notifications', 'alarms']);
+const DUPLICATE_STRATEGIES = new Set(['enqueue', 'drop', 'replace']);
 const ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/u;
 
 export class ConfigValidationError extends Error {
@@ -28,15 +28,22 @@ export function normalizeConfig(input: unknown): NormalizedPlatformConfig {
     return EMPTY_CONFIG;
   }
 
-  const config = input as Partial<LaMetricPlatformConfig>;
+  const config = input;
   if (config.platform !== 'LaMetricTime') {
     throw new ConfigValidationError(['platform must be LaMetricTime']);
   }
 
   const issues: string[] = [];
-  const devices = normalizeDevices(config.devices ?? [], issues);
+  const debug = optionalBoolean(config.debug, DEFAULTS.debug, 'debug', issues);
+  const testSwitch = optionalBoolean(config.testSwitch, DEFAULTS.testSwitch, 'testSwitch', issues);
+  const queueStrategy = optionalQueueStrategy(config.queueStrategy, issues);
+  const duplicateStrategy = optionalDuplicateStrategy(config.duplicateStrategy, issues);
+  const devices = normalizeDevices((config.devices ?? []) as readonly LaMetricDeviceConfig[], issues);
   const deviceIds = new Set(devices.map((device) => device.id));
-  const messages = normalizeMessages(config.messages ?? [], deviceIds, issues);
+  const messages = normalizeMessages((config.messages ?? []) as readonly LaMetricMessageConfig[], deviceIds, issues);
+  const name = typeof config.name === 'string' ? cleanRequiredString(config.name, 'name', issues) || DEFAULTS.platformName : DEFAULTS.platformName;
+  const maxQueueSize = boundedInteger(config.maxQueueSize as number | undefined, DEFAULTS.maxQueueSize, 1, 500, 'maxQueueSize', issues);
+  const globalDelayMs = boundedInteger(config.globalDelayMs as number | undefined, DEFAULTS.globalDelayMs, 0, 60000, 'globalDelayMs', issues);
 
   if (issues.length > 0) {
     throw new ConfigValidationError(issues);
@@ -44,16 +51,48 @@ export function normalizeConfig(input: unknown): NormalizedPlatformConfig {
 
   return {
     platform: 'LaMetricTime',
-    name: cleanRequiredString(config.name, 'name', issues) || DEFAULTS.platformName,
-    debug: config.debug ?? DEFAULTS.debug,
-    queueStrategy: 'sequential',
-    maxQueueSize: boundedInteger(config.maxQueueSize, DEFAULTS.maxQueueSize, 1, 500, 'maxQueueSize', issues),
-    duplicateStrategy: config.duplicateStrategy ?? 'drop',
-    globalDelayMs: boundedInteger(config.globalDelayMs, DEFAULTS.globalDelayMs, 0, 60000, 'globalDelayMs', issues),
-    testSwitch: config.testSwitch ?? DEFAULTS.testSwitch,
+    name,
+    debug,
+    queueStrategy,
+    maxQueueSize,
+    duplicateStrategy,
+    globalDelayMs,
+    testSwitch,
     devices,
     messages,
   };
+}
+
+function optionalBoolean(value: unknown, fallback: boolean, label: string, issues: string[]): boolean {
+  if (value === undefined) {
+    return fallback;
+  }
+  if (typeof value !== 'boolean') {
+    issues.push(`${label} must be a boolean`);
+    return fallback;
+  }
+  return value;
+}
+
+function optionalQueueStrategy(value: unknown, issues: string[]): 'sequential' {
+  if (value === undefined) {
+    return 'sequential';
+  }
+  if (value !== 'sequential') {
+    issues.push('queueStrategy must be sequential');
+  }
+  return 'sequential';
+}
+
+function optionalDuplicateStrategy(value: unknown, issues: string[]): 'enqueue' | 'drop' | 'replace' {
+  if (value === undefined) {
+    return 'drop';
+  }
+  if (typeof value !== 'string' || !DUPLICATE_STRATEGIES.has(value)) {
+    issues.push('duplicateStrategy must be enqueue, drop, or replace');
+    return 'drop';
+  }
+  return value as 'enqueue' | 'drop' | 'replace';
 }
 
 function normalizeDevices(devices: readonly LaMetricDeviceConfig[], issues: string[]): readonly NormalizedDeviceConfig[] {

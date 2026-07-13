@@ -3,7 +3,6 @@ import { ConfigValidationError, normalizeConfig } from './config/validation.js';
 import type { NormalizedDeviceConfig, NormalizedMessageConfig, NormalizedPlatformConfig } from './config/types.js';
 import { LaMetricClient } from './lametric/client.js';
 import { NotificationBuilder } from './lametric/notification-builder.js';
-import { NotificationSwitchAccessory } from './accessories/notification-switch.js';
 import { MessageAccessory } from './accessories/message-accessory.js';
 import { QueueManager } from './services/queue.js';
 import { RateLimiter } from './services/rate-limiter.js';
@@ -74,19 +73,21 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
       const queue = this.queueManager.getQueue(device.id, {
         maxSize: this.configData.maxQueueSize,
         duplicateStrategy: this.configData.duplicateStrategy,
-        cooldownMs: message.cooldownMs,
       });
       const accepted = queue.enqueue({
         key: message.id,
         label: message.name,
         payload,
+        cooldownMs: message.cooldownMs,
         run: async () => {
           try {
             await limiter.wait();
             await client.sendNotification(payload);
             this.logger.info('[%s] Notification sent to %s', message.name, device.name);
+            return true;
           } catch (error) {
             this.logger.warn('[%s] Notification failed for %s: %s', message.name, device.name, error instanceof Error ? error.message : String(error));
+            return false;
           }
         },
       });
@@ -159,7 +160,7 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
       existingAccessory.context.messageId = message?.id ?? 'global-test';
       existingAccessory.context.testSwitch = testSwitch;
       this.api.updatePlatformAccessories([existingAccessory]);
-      new NotificationSwitchAccessory(this, existingAccessory, message, testSwitch);
+      new MessageAccessory(this, existingAccessory, message, testSwitch);
       return;
     }
 
