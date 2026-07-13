@@ -4,7 +4,7 @@
 
 Dynamic Homebridge platform plugin for sending local notifications to one or more LaMetric TIME clocks.
 
-> Alpha release: this plugin is versioned as `0.1.0-alpha.5`. It has automated tests and compiles, but it still needs validation with real LaMetric TIME hardware before being considered stable.
+> Beta release: this plugin is versioned as `0.1.0-beta.0`. It has automated tests and compiles, but it should still be validated with real LaMetric TIME hardware before being considered stable.
 
 The plugin uses the LaMetric Device API v2 local endpoint:
 
@@ -218,6 +218,6 @@ Before publishing:
 1. Confirm repository, bugs, homepage, author, and license metadata.
 2. Run `npm run lint`, `npm run build`, `npm test`, and `npm run verify:pack`.
 3. Log in with `npm login`.
-4. Publish the alpha release with `npm publish --tag alpha`.
+4. Publish the beta release with `npm publish --tag beta`.
 
 For a scoped package, use `npm publish --access=public` the first time.
