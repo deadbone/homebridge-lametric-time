@@ -1,9 +1,9 @@
 {
-  "name": "homebridge-lametric-time",
+  "name": "homebridge-lametric-time-deadbone",
   "displayName": "LaMetric TIME",
   "type": "module",
   "version": "0.1.0-alpha.0",
-  "private": true,
+  "private": false,
   "description": "Homebridge dynamic platform plugin for sending local LaMetric TIME notifications.",
   "author": "Thierry Lubrez",
   "license": "Apache-2.0",
