@@ -32,8 +32,7 @@ export class LaMetricClient {
 
   public async testConnection(): Promise<void> {
     await this.requestWithRetry({
-      priority: 'info',
-      icon_type: 'none',
+      priority: 'critical',
       model: {
         cycles: 1,
         frames: [{ text: 'Homebridge test' }],

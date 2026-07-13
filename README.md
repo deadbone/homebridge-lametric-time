@@ -4,7 +4,7 @@
 
 Dynamic Homebridge platform plugin for sending local notifications to one or more LaMetric TIME clocks.
 
-> Alpha release: this plugin is versioned as `0.1.0-alpha.4`. It has automated tests and compiles, but it still needs validation with real LaMetric TIME hardware before being considered stable.
+> Alpha release: this plugin is versioned as `0.1.0-alpha.5`. It has automated tests and compiles, but it still needs validation with real LaMetric TIME hardware before being considered stable.
 
 The plugin uses the LaMetric Device API v2 local endpoint:
 
@@ -153,6 +153,8 @@ The LaMetric Device API documents notification priorities:
 - `info`: normal queue priority.
 - `warning`: higher priority than internal notifications.
 - `critical`: interrupts other notifications and wakes the device from sleep/screensaver.
+
+If the LaMetric returns `Only notifications with priority 'critical' are allowed in current mode`, edit the message in Homebridge UI and set its priority to `Critical`. This usually means the device is currently in a restrictive mode such as sleep, screen saver, or do-not-disturb. The global Homebridge test switch uses `critical` by default so it can still validate the connection in that state.
 
 `iconType` supports `none`, `info`, and `alert`.
 

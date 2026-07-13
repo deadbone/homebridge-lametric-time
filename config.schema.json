@@ -187,6 +187,7 @@
               "title": "Priority",
               "type": "string",
               "default": "info",
+              "description": "Use Critical if the LaMetric is in a mode that only accepts critical notifications, such as sleep or do-not-disturb.",
               "oneOf": [
                 { "title": "Info", "enum": ["info"] },
                 { "title": "Warning", "enum": ["warning"] },

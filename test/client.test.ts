@@ -25,6 +25,15 @@ describe('LaMetricClient', () => {
     await expect(client.sendNotification(payload)).resolves.toEqual({ id: '50' });
   });
 
+  it('uses critical priority for connection tests', async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(response(200));
+    const client = new LaMetricClient(sampleConfig.devices[0], { fetchImpl });
+    await client.testConnection();
+    const body = JSON.parse(fetchImpl.mock.calls[0]?.[1]?.body as string) as LaMetricNotificationPayload;
+    expect(body.priority).toBe('critical');
+    expect(body.icon_type).toBeUndefined();
+  });
+
   it('maps HTTP 401 and does not retry', async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(response(401, { error: 'bad SECRET' }));
     const client = new LaMetricClient(sampleConfig.devices[0], { fetchImpl });
