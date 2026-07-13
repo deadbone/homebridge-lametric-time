@@ -4,7 +4,7 @@
 
 Dynamic Homebridge platform plugin for sending local notifications to one or more LaMetric TIME clocks.
 
-> Beta release: this plugin is versioned as `0.1.0-beta.0`. It has automated tests and compiles, but it should still be validated with real LaMetric TIME hardware before being considered stable.
+> Beta release: this plugin is versioned as `0.1.0-beta.1`. It has automated tests and compiles, but it should still be validated with real LaMetric TIME hardware before being considered stable.
 
 The plugin uses the LaMetric Device API v2 local endpoint:
 
