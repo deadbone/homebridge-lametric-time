@@ -6,7 +6,7 @@
 
 Dynamic Homebridge platform plugin for sending local notifications to one or more LaMetric TIME V2 clocks.
 
-> Beta release: this plugin is versioned as `0.1.0-beta.4`. It has automated tests and compiles, but it should still be validated with real LaMetric TIME V2 hardware before being considered stable.
+> Stable release: this plugin is versioned as `0.1.0`.
 
 > Compatibility notice: this plugin targets LaMetric TIME V2 / 2022+ devices. The first-generation LaMetric TIME is not supported by this plugin because its local API key/authentication flow can differ and has not been validated reliably.
 
@@ -225,7 +225,7 @@ Before publishing:
 1. Confirm repository, bugs, homepage, author, and license metadata.
 2. Run `npm run lint`, `npm run build`, `npm test`, and `npm run verify:pack`.
 3. Log in with `npm login`.
-4. Publish the beta release with `npm publish --tag beta`.
+4. Publish the stable release with `npm publish`.
 
 For a scoped package, use `npm publish --access=public` the first time.
 
@@ -233,7 +233,7 @@ For a scoped package, use `npm publish --access=public` the first time.
 
 Plugin de plateforme dynamique Homebridge permettant d’envoyer des notifications locales vers une ou plusieurs horloges LaMetric TIME V2.
 
-> Version bêta : ce plugin est actuellement en `0.1.0-beta.4`. Il compile et dispose de tests automatisés, mais il doit encore être validé avec du matériel LaMetric TIME V2 réel avant d’être considéré comme stable.
+> Version stable : ce plugin est actuellement en `0.1.0`.
 
 > Note de compatibilité : ce plugin cible uniquement les appareils LaMetric TIME V2 / 2022+. La première génération de LaMetric TIME n’est pas prise en charge, car son flux d’authentification / clé API locale peut différer et n’a pas pu être validé de façon fiable.
 
@@ -452,6 +452,6 @@ Avant publication :
 1. Vérifier les métadonnées repository, bugs, homepage, author et license.
 2. Exécuter `npm run lint`, `npm run build`, `npm test` et `npm run verify:pack`.
 3. Se connecter avec `npm login`.
-4. Publier la version bêta avec `npm publish --tag beta`.
+4. Publier la version stable avec `npm publish`.
 
 Pour un paquet scopé, utiliser `npm publish --access=public` lors de la première publication.
