@@ -1,8 +1,8 @@
 {
-  "name": "homebridge-lametric-time-deadbone",
+  "name": "lametric-time-messenger",
   "displayName": "LaMetric TIME",
   "type": "module",
-  "version": "0.1.0-beta.2",
+  "version": "0.1.0-beta.3",
   "private": false,
   "description": "Homebridge plugin for local LaMetric TIME V2 notifications.",
   "author": "Thierry Lubrez",

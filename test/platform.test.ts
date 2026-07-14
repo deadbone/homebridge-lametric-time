@@ -6,7 +6,7 @@ describe('LaMetricTimePlatform accessories', () => {
   it('restores cached accessories without duplicating them', () => {
     const mocks = createHomebridgeMocks();
     const platform = new LaMetricTimePlatform(mocks.log as never, config() as never, mocks.api as never);
-    const cached = new mocks.PlatformAccessory('Old Name', 'uuid:homebridge-lametric-time-deadbone:front-door-open');
+    const cached = new mocks.PlatformAccessory('Old Name', 'uuid:lametric-time-messenger:front-door-open');
     platform.configureAccessory(cached as never);
     mocks.eventHandlers.get('didFinishLaunching')?.();
     expect(mocks.api.registerPlatformAccessories).not.toHaveBeenCalled();
@@ -16,7 +16,7 @@ describe('LaMetricTimePlatform accessories', () => {
   it('removes stale cached accessories', () => {
     const mocks = createHomebridgeMocks();
     const platform = new LaMetricTimePlatform(mocks.log as never, config({ messages: [] }) as never, mocks.api as never);
-    const cached = new mocks.PlatformAccessory('Removed', 'uuid:homebridge-lametric-time-deadbone:removed');
+    const cached = new mocks.PlatformAccessory('Removed', 'uuid:lametric-time-messenger:removed');
     platform.configureAccessory(cached as never);
     mocks.eventHandlers.get('didFinishLaunching')?.();
     expect(mocks.unregistered).toHaveLength(1);

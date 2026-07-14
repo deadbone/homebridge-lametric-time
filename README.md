@@ -1,10 +1,10 @@
-# homebridge-lametric-time-deadbone
+# lametric-time-messenger
 
 ![Plugin icon](assets/plugin-icon.png)
 
 Dynamic Homebridge platform plugin for sending local notifications to one or more LaMetric TIME V2 clocks.
 
-> Beta release: this plugin is versioned as `0.1.0-beta.2`. It has automated tests and compiles, but it should still be validated with real LaMetric TIME V2 hardware before being considered stable.
+> Beta release: this plugin is versioned as `0.1.0-beta.3`. It has automated tests and compiles, but it should still be validated with real LaMetric TIME V2 hardware before being considered stable.
 
 > Compatibility notice: this plugin targets LaMetric TIME V2 / 2022+ devices. The first-generation LaMetric TIME is not supported by this plugin because its local API key/authentication flow can differ and has not been validated reliably.
 
@@ -34,14 +34,14 @@ After the package is published to npm, install it from the Homebridge UI:
 
 1. Open Homebridge UI.
 2. Go to **Plugins**.
-3. Search for `homebridge-lametric-time-deadbone`.
+3. Search for `lametric-time-messenger`.
 4. Click **Install**.
 5. Restart Homebridge.
 
 ### npm
 
 ```sh
-npm install -g homebridge-lametric-time-deadbone
+npm install -g lametric-time-messenger
 ```
 
 ### Local Development Install
