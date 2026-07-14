@@ -1,4 +1,4 @@
-# lametric-time-messenger
+# homebridge-lametric-time-messenger
 
 ![Plugin icon](assets/plugin-icon.png)
 
@@ -6,7 +6,7 @@
 
 Dynamic Homebridge platform plugin for sending local notifications to one or more LaMetric TIME V2 clocks.
 
-> Beta release: this plugin is versioned as `0.1.0-beta.3`. It has automated tests and compiles, but it should still be validated with real LaMetric TIME V2 hardware before being considered stable.
+> Beta release: this plugin is versioned as `0.1.0-beta.4`. It has automated tests and compiles, but it should still be validated with real LaMetric TIME V2 hardware before being considered stable.
 
 > Compatibility notice: this plugin targets LaMetric TIME V2 / 2022+ devices. The first-generation LaMetric TIME is not supported by this plugin because its local API key/authentication flow can differ and has not been validated reliably.
 
@@ -36,14 +36,14 @@ After the package is published to npm, install it from the Homebridge UI:
 
 1. Open Homebridge UI.
 2. Go to **Plugins**.
-3. Search for `lametric-time-messenger`.
+3. Search for `homebridge-lametric-time-messenger`.
 4. Click **Install**.
 5. Restart Homebridge.
 
 #### npm
 
 ```sh
-npm install -g lametric-time-messenger
+npm install -g homebridge-lametric-time-messenger
 ```
 
 #### Local development install
@@ -233,7 +233,7 @@ For a scoped package, use `npm publish --access=public` the first time.
 
 Plugin de plateforme dynamique Homebridge permettant d’envoyer des notifications locales vers une ou plusieurs horloges LaMetric TIME V2.
 
-> Version bêta : ce plugin est actuellement en `0.1.0-beta.3`. Il compile et dispose de tests automatisés, mais il doit encore être validé avec du matériel LaMetric TIME V2 réel avant d’être considéré comme stable.
+> Version bêta : ce plugin est actuellement en `0.1.0-beta.4`. Il compile et dispose de tests automatisés, mais il doit encore être validé avec du matériel LaMetric TIME V2 réel avant d’être considéré comme stable.
 
 > Note de compatibilité : ce plugin cible uniquement les appareils LaMetric TIME V2 / 2022+. La première génération de LaMetric TIME n’est pas prise en charge, car son flux d’authentification / clé API locale peut différer et n’a pas pu être validé de façon fiable.
 
@@ -263,14 +263,14 @@ Une fois le paquet publié sur npm, installez-le depuis Homebridge UI :
 
 1. Ouvrez Homebridge UI.
 2. Allez dans **Plugins**.
-3. Recherchez `lametric-time-messenger`.
+3. Recherchez `homebridge-lametric-time-messenger`.
 4. Cliquez sur **Install**.
 5. Redémarrez Homebridge.
 
 #### npm
 
 ```sh
-npm install -g lametric-time-messenger
+npm install -g homebridge-lametric-time-messenger
 ```
 
 #### Installation locale de développement
