@@ -7,7 +7,7 @@ const output = execFileSync('npm', ['pack', '--dry-run', '--json'], {
 
 const [pack] = JSON.parse(output);
 const files = new Set(pack.files.map((file) => file.path));
-const requiredFiles = ['dist/index.js', 'assets/plugin-icon.png', 'config.schema.json', 'README.md', 'LICENSE'];
+const requiredFiles = ['dist/index.js', 'assets/plugin-icon.png', 'config.schema.json', 'README.md', 'CHANGELOG.md', 'LICENSE'];
 const missing = requiredFiles.filter((file) => !files.has(file));
 
 if (missing.length > 0) {
