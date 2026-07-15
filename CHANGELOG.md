@@ -2,6 +2,16 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.1
+
+Maintenance release.
+
+### Changed
+
+- Updated the changelog to document the stable release and previous alpha/beta history.
+- Included `CHANGELOG.md` in the npm package.
+- Updated package verification so `CHANGELOG.md` is required in the npm archive.
+
 ## 0.1.0
 
 Stable release of `homebridge-lametric-time-messenger`.
