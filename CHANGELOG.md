@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.3
+
+### Fixed
+
+- Removed `homebridge` from `peerDependencies` to satisfy Homebridge verified-plugin dependency checks. `homebridge` remains only in `devDependencies`.
+
 ## 0.1.2
 
 ### Changed
