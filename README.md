@@ -6,7 +6,7 @@
 
 Dynamic Homebridge platform plugin for sending local notifications to one or more LaMetric TIME V2 clocks.
 
-> Stable release: this plugin is versioned as `0.1.0`.
+> Stable release: this plugin is versioned as `0.1.2`.
 
 > Compatibility notice: this plugin targets LaMetric TIME V2 / 2022+ devices. The first-generation LaMetric TIME is not supported by this plugin because its local API key/authentication flow can differ and has not been validated reliably.
 
@@ -76,6 +76,22 @@ Sections:
 The schema can mask the API key with `format: password`. Per-device connection test buttons are not included in this version because the standard schema form does not provide a reliable server-side button flow by itself.
 
 Detailed configuration documentation is available in the repository wiki.
+
+### Scoped Homebridge plugin compatibility
+
+Homebridge scoped plugins use the npm organization `@homebridge-plugins/`. A future scoped package for this plugin would therefore be named:
+
+```text
+@homebridge-plugins/homebridge-lametric-time-messenger
+```
+
+Only the Homebridge collaborators team can initially publish packages under that scope. The current public package remains:
+
+```text
+homebridge-lametric-time-messenger
+```
+
+The plugin keeps a stable HomeKit accessory UUID namespace that does not depend on whether the npm package is scoped or unscoped. This is intended to make a future scoped migration safe for existing HomeKit accessories, rooms, scenes, and automations when following the Homebridge scoped-plugin migration process.
 
 ### Example configuration
 
@@ -233,7 +249,7 @@ For a scoped package, use `npm publish --access=public` the first time.
 
 Plugin de plateforme dynamique Homebridge permettant d’envoyer des notifications locales vers une ou plusieurs horloges LaMetric TIME V2.
 
-> Version stable : ce plugin est actuellement en `0.1.0`.
+> Version stable : ce plugin est actuellement en `0.1.2`.
 
 > Note de compatibilité : ce plugin cible uniquement les appareils LaMetric TIME V2 / 2022+. La première génération de LaMetric TIME n’est pas prise en charge, car son flux d’authentification / clé API locale peut différer et n’a pas pu être validé de façon fiable.
 
@@ -303,6 +319,22 @@ Sections :
 Le schéma masque la clé API avec `format: password`. Les boutons de test par appareil ne sont pas inclus dans cette version, car le formulaire standard Homebridge UI ne fournit pas de flux serveur fiable pour ce type de bouton.
 
 La documentation détaillée des options de configuration est disponible dans le wiki du dépôt.
+
+### Compatibilité avec les plugins scopés Homebridge
+
+Les plugins scopés Homebridge utilisent l’organisation npm `@homebridge-plugins/`. Un futur paquet scopé pour ce plugin s’appellerait donc :
+
+```text
+@homebridge-plugins/homebridge-lametric-time-messenger
+```
+
+Seule l’équipe de collaborateurs Homebridge peut publier initialement des paquets sous ce scope. Le paquet public actuel reste :
+
+```text
+homebridge-lametric-time-messenger
+```
+
+Le plugin conserve un namespace UUID HomeKit stable qui ne dépend pas du fait que le paquet npm soit scopé ou non. L’objectif est de permettre une future migration scoped sans recréer les accessoires HomeKit, pièces, scènes et automatisations, à condition de suivre la procédure de migration Homebridge.
 
 ### Exemple de configuration
 

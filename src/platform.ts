@@ -8,7 +8,7 @@ import { QueueManager } from './services/queue.js';
 import { RateLimiter } from './services/rate-limiter.js';
 import { PluginLogger } from './utils/logger.js';
 import { sanitizeHomeKitName } from './utils/security.js';
-import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
+import { ACCESSORY_UUID_NAMESPACE, PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 
 export interface MessageDispatchResult {
   readonly queued: number;
@@ -177,6 +177,6 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
   }
 
   private messageUuid(messageId: string): string {
-    return this.api.hap.uuid.generate(`${PLUGIN_NAME}:${messageId}`);
+    return this.api.hap.uuid.generate(`${ACCESSORY_UUID_NAMESPACE}:${messageId}`);
   }
 }

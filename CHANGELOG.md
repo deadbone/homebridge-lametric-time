@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.2
+
+### Changed
+
+- Added scoped plugin migration readiness for a future `@homebridge-plugins/homebridge-lametric-time-messenger` package.
+- Stabilized the HomeKit accessory UUID namespace so a future scoped package can keep the same accessory UUIDs.
+- Documented the Homebridge scoped plugin migration path.
+
 ## 0.1.1
 
 Maintenance release.
