@@ -10,6 +10,9 @@ export class MessageAccessory extends NotificationSwitchAccessory {
     message: NormalizedMessageConfig | undefined,
     testSwitch: boolean,
   ) {
-    super(platform, accessory, message, testSwitch);
+    super(platform, accessory, {
+      ...(message ? { message } : {}),
+      globalTest: testSwitch,
+    });
   }
 }

@@ -18,6 +18,7 @@ export const DEFAULTS = {
   timeoutMs: 5000,
   retryCount: 2,
   retryBackoffMs: 500,
+  connectionTestSwitch: false,
   autoResetMs: 1000,
   cooldownMs: 0,
   priority: 'info',

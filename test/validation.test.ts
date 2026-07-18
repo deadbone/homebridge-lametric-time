@@ -42,6 +42,23 @@ describe('normalizeConfig', () => {
     expect(() => normalizeConfig({ ...validConfig, testSwitch: 'false' })).toThrow(/testSwitch must be a boolean/u);
   });
 
+  it('normalizes per-device connection test switches', () => {
+    const normalized = normalizeConfig({
+      ...validConfig,
+      devices: [{ id: 'salon', name: 'One', host: '192.168.1.2', apiKey: 'SECRET', connectionTestSwitch: true }],
+    });
+    expect(normalized.devices[0]?.connectionTestSwitch).toBe(true);
+  });
+
+  it('rejects invalid per-device connection test switch values', () => {
+    expect(() =>
+      normalizeConfig({
+        ...validConfig,
+        devices: [{ id: 'salon', name: 'One', host: '192.168.1.2', apiKey: 'SECRET', connectionTestSwitch: 'true' }],
+      }),
+    ).toThrow(/devices\[0\]\.connectionTestSwitch must be a boolean/u);
+  });
+
   it('rejects invalid duplicateStrategy values', () => {
     expect(() => normalizeConfig({ ...validConfig, duplicateStrategy: 'merge' })).toThrow(/duplicateStrategy must be enqueue, drop, or replace/u);
   });

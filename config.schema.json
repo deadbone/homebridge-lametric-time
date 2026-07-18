@@ -129,6 +129,12 @@
               "default": 500,
               "minimum": 0,
               "maximum": 30000
+            },
+            "connectionTestSwitch": {
+              "title": "Expose Connection Test Switch",
+              "type": "boolean",
+              "default": false,
+              "description": "Adds a HomeKit switch that sends a critical test notification to this LaMetric only, then resets to off."
             }
           }
         }
@@ -312,7 +318,8 @@
             "devices[].apiKey",
             "devices[].timeoutMs",
             "devices[].retryCount",
-            "devices[].retryBackoffMs"
+            "devices[].retryBackoffMs",
+            "devices[].connectionTestSwitch"
           ]
         }
       ]

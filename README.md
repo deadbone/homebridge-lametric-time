@@ -72,10 +72,10 @@ The plugin ships a `config.schema.json`, so Homebridge UI can render the configu
 Sections:
 
 - General settings: debug logging, queue size, duplicate behavior, global delay, optional test switch.
-- LaMetric TIME V2 devices: internal ID, display name, host, protocol, port, API key, timeout, retries.
+- LaMetric TIME V2 devices: internal ID, display name, host, protocol, port, API key, timeout, retries, optional per-device connection test switch.
 - Messages: internal ID, name, target devices, HomeKit switch exposure, auto-reset, cooldown, priority, icon type, cycles, frames, optional sound.
 
-The schema can mask the API key with `format: password`. Per-device connection test buttons are not included in this version because the standard schema form does not provide a reliable server-side button flow by itself.
+The schema can mask the API key with `format: password`. Enable `connectionTestSwitch` on a device to expose a HomeKit switch named `Test <device name>`. Turning it on sends a critical local test notification to that device only and the switch automatically returns to off.
 
 Detailed configuration documentation is available in the repository wiki.
 
@@ -116,7 +116,8 @@ The plugin keeps a stable HomeKit accessory UUID namespace that does not depend 
       "apiKey": "SECRET",
       "timeoutMs": 5000,
       "retryCount": 2,
-      "retryBackoffMs": 500
+      "retryBackoffMs": 500,
+      "connectionTestSwitch": true
     }
   ],
   "messages": [
@@ -202,6 +203,18 @@ The plugin keeps in-memory queues per LaMetric device:
 - failures are logged and the queue continues.
 
 Queues are not persisted. API keys and notification payloads are not written to log files by the plugin.
+
+### TODO
+
+- Add automatic discovery for LaMetric devices on the local network.
+- Add richer template variables such as `{{device}}`, `{{messageId}}`, `{{weekday}}`, and custom date/time formats.
+- Expose an optional local API for sending ad hoc notifications from scripts, local webhooks, or shortcuts.
+- Add optional HomeKit status accessories for connection state, last error, or active queue state.
+- Persist critical queued notifications across Homebridge restarts.
+- Add quiet hours so only critical notifications pass, or so sounds are muted during configured time ranges.
+- Add reusable notification profiles for priority, sound, cycles, icon type, and cooldown defaults.
+- Add internal counters for sent, failed, duplicate-dropped, cooldown-dropped, and last-success events.
+- Expand the documentation with ready-to-use automation examples such as doorbell, laundry done, bins, alarm, presence, and weather alerts.
 
 ### Troubleshooting
 

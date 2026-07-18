@@ -134,6 +134,7 @@ function normalizeDevices(devices: readonly LaMetricDeviceConfig[], issues: stri
       timeoutMs: boundedInteger(device.timeoutMs, DEFAULTS.timeoutMs, 250, 60000, `${label}.timeoutMs`, issues),
       retryCount: boundedInteger(device.retryCount, DEFAULTS.retryCount, 0, 5, `${label}.retryCount`, issues),
       retryBackoffMs: boundedInteger(device.retryBackoffMs, DEFAULTS.retryBackoffMs, 0, 30000, `${label}.retryBackoffMs`, issues),
+      connectionTestSwitch: optionalBoolean(device.connectionTestSwitch, DEFAULTS.connectionTestSwitch, `${label}.connectionTestSwitch`, issues),
     };
   });
 }

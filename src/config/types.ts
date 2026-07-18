@@ -12,6 +12,7 @@ export interface LaMetricDeviceConfig {
   readonly timeoutMs?: number;
   readonly retryCount?: number;
   readonly retryBackoffMs?: number;
+  readonly connectionTestSwitch?: boolean;
 }
 
 export interface MessageFrameConfig {

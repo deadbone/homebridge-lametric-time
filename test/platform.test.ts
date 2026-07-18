@@ -34,6 +34,24 @@ describe('LaMetricTimePlatform accessories', () => {
     expect(service?.updateCharacteristic).toHaveBeenCalledWith('On', false);
     vi.useRealTimers();
   });
+
+  it('registers per-device connection test switches', async () => {
+    const mocks = createHomebridgeMocks();
+    const platform = new LaMetricTimePlatform(
+      mocks.log as never,
+      config({ devices: [{ id: 'salon', name: 'LaMetric Salon', host: '192.168.1.50', apiKey: 'SECRET', retryCount: 0, connectionTestSwitch: true }] }) as never,
+      mocks.api as never,
+    );
+    platform.dispatchDeviceConnectionTest = vi.fn(async () => ({ queued: 1, targets: 1 }));
+
+    mocks.eventHandlers.get('didFinishLaunching')?.();
+
+    const accessory = mocks.registered[1] as InstanceType<typeof mocks.PlatformAccessory>;
+    expect(accessory.displayName).toBe('Test LaMetric Salon');
+    expect(accessory.context.connectionTestSwitch).toBe(true);
+    await accessory.getService('Switch')?.characteristic.onSetHandler?.(true);
+    expect(platform.dispatchDeviceConnectionTest).toHaveBeenCalledWith('salon');
+  });
 });
 
 function config(overrides: Record<string, unknown> = {}) {

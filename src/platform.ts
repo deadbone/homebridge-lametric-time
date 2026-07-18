@@ -4,6 +4,7 @@ import type { NormalizedDeviceConfig, NormalizedMessageConfig, NormalizedPlatfor
 import { LaMetricClient } from './lametric/client.js';
 import { NotificationBuilder } from './lametric/notification-builder.js';
 import { MessageAccessory } from './accessories/message-accessory.js';
+import { ConnectionTestAccessory } from './accessories/connection-test-accessory.js';
 import { QueueManager } from './services/queue.js';
 import { RateLimiter } from './services/rate-limiter.js';
 import { PluginLogger } from './utils/logger.js';
@@ -124,6 +125,49 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
     return this.dispatchMessage(message);
   }
 
+  public async dispatchDeviceConnectionTest(deviceId: string): Promise<MessageDispatchResult> {
+    const device = this.getDevice(deviceId);
+    const client = this.clients.get(deviceId);
+    const limiter = this.rateLimiters.get(deviceId);
+    if (!device || !client || !limiter) {
+      this.logger.warn('[Connection Test] Ignoring unknown LaMetric device %s', deviceId);
+      return { queued: 0, targets: 1 };
+    }
+
+    const queue = this.queueManager.getQueue(device.id, {
+      maxSize: this.configData.maxQueueSize,
+      duplicateStrategy: this.configData.duplicateStrategy,
+    });
+    const accepted = queue.enqueue({
+      key: `connection-test:${device.id}`,
+      label: `Connection Test ${device.name}`,
+      payload: {
+        priority: 'critical',
+        model: {
+          cycles: 1,
+          frames: [{ text: 'Homebridge test' }],
+        },
+      },
+      cooldownMs: 0,
+      run: async () => {
+        try {
+          await limiter.wait();
+          await client.testConnection();
+          this.logger.info('[Connection Test] LaMetric device %s responded successfully', device.name);
+          return true;
+        } catch (error) {
+          this.logger.warn('[Connection Test] LaMetric device %s failed: %s', device.name, error instanceof Error ? error.message : String(error));
+          return false;
+        }
+      },
+    });
+
+    if (accepted) {
+      this.logger.info('[Connection Test] Test added to queue for %s', device.name);
+    }
+    return { queued: accepted ? 1 : 0, targets: 1 };
+  }
+
   private registerConfiguredAccessories(): void {
     const expectedUUIDs = new Set<string>();
 
@@ -137,6 +181,12 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
       const uuid = this.messageUuid('global-test');
       expectedUUIDs.add(uuid);
       this.registerOrRestoreAccessory(uuid, 'LaMetric Test', undefined, true);
+    }
+
+    for (const device of this.configData.devices.filter((item) => item.connectionTestSwitch)) {
+      const uuid = this.deviceTestUuid(device.id);
+      expectedUUIDs.add(uuid);
+      this.registerOrRestoreConnectionTestAccessory(uuid, `Test ${sanitizeHomeKitName(device.name)}`, device.id);
     }
 
     for (const [uuid, accessory] of this.accessories) {
@@ -172,11 +222,38 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
     this.accessories.set(uuid, accessory);
   }
 
+  private registerOrRestoreConnectionTestAccessory(
+    uuid: string,
+    displayName: string,
+    deviceId: string,
+  ): void {
+    const existingAccessory = this.accessories.get(uuid);
+    if (existingAccessory) {
+      existingAccessory.displayName = displayName;
+      existingAccessory.context.deviceId = deviceId;
+      existingAccessory.context.connectionTestSwitch = true;
+      this.api.updatePlatformAccessories([existingAccessory]);
+      new ConnectionTestAccessory(this, existingAccessory, deviceId);
+      return;
+    }
+
+    const accessory = new this.api.platformAccessory(displayName, uuid);
+    accessory.context.deviceId = deviceId;
+    accessory.context.connectionTestSwitch = true;
+    new ConnectionTestAccessory(this, accessory, deviceId);
+    this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+    this.accessories.set(uuid, accessory);
+  }
+
   private getDevice(deviceId: string): NormalizedDeviceConfig | undefined {
     return this.configData.devices.find((device) => device.id === deviceId);
   }
 
   private messageUuid(messageId: string): string {
     return this.api.hap.uuid.generate(`${ACCESSORY_UUID_NAMESPACE}:${messageId}`);
+  }
+
+  private deviceTestUuid(deviceId: string): string {
+    return this.api.hap.uuid.generate(`${ACCESSORY_UUID_NAMESPACE}:connection-test:${deviceId}`);
   }
 }
