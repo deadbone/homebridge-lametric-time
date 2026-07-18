@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.4
+
+### Added
+
+- Added optional per-device HomeKit connection test switches.
+- Documented remaining improvement ideas in the README TODO section.
+
 ## 0.1.3
 
 ### Fixed
