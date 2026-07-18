@@ -1,12 +1,14 @@
 # homebridge-lametric-time-messenger
 
+[![verified-by-homebridge](https://img.shields.io/badge/homebridge-verified-blueviolet?color=%23491F59&style=for-the-badge&logoColor=%23FFFFFF&logo=homebridge)](https://github.com/homebridge/homebridge/wiki/Verified-Plugins)
+
 ![Plugin icon](assets/plugin-icon.png)
 
 ## English
 
 Dynamic Homebridge platform plugin for sending local notifications to one or more LaMetric TIME V2 clocks.
 
-> Stable release: this plugin is versioned as `0.1.2`.
+> Stable release: this plugin is versioned as `0.1.3`.
 
 > Compatibility notice: this plugin targets LaMetric TIME V2 / 2022+ devices. The first-generation LaMetric TIME is not supported by this plugin because its local API key/authentication flow can differ and has not been validated reliably.
 
@@ -249,7 +251,7 @@ For a scoped package, use `npm publish --access=public` the first time.
 
 Plugin de plateforme dynamique Homebridge permettant d’envoyer des notifications locales vers une ou plusieurs horloges LaMetric TIME V2.
 
-> Version stable : ce plugin est actuellement en `0.1.2`.
+> Version stable : ce plugin est actuellement en `0.1.3`.
 
 > Note de compatibilité : ce plugin cible uniquement les appareils LaMetric TIME V2 / 2022+. La première génération de LaMetric TIME n’est pas prise en charge, car son flux d’authentification / clé API locale peut différer et n’a pas pu être validé de façon fiable.
 
