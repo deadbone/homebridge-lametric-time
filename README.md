@@ -297,6 +297,14 @@ Configure npm Trusted Publishing for this package with:
 
 The publish workflow also handles automatic releases for merged pull requests. When a PR is merged into `main`, `.github/workflows/publish.yml` runs the same validation, bumps the patch version, creates the matching `vX.Y.Z` tag, pushes the release commit and tag back to `main`, publishes the package to npm, then creates a GitHub Release marked as Latest.
 
+For pull requests opened from this repository, the same workflow publishes a unique npm prerelease with the `beta` dist-tag after validation. Install the latest PR beta with:
+
+```sh
+npm install -g homebridge-lametric-time-messenger@beta
+```
+
+The beta version includes the PR number and GitHub Actions run details, and does not replace the stable `latest` release.
+
 ## Français
 
 Plugin de plateforme dynamique Homebridge permettant d’envoyer des notifications locales vers une ou plusieurs horloges LaMetric TIME V2.
@@ -577,3 +585,11 @@ Configurer npm Trusted Publishing pour ce package avec :
 - Environment name : laisser vide sauf si un environnement de déploiement GitHub est ajouté plus tard.
 
 Le workflow de publication gère aussi les releases automatiques pour les pull requests mergées. Lorsqu’une PR est mergée dans `main`, `.github/workflows/publish.yml` exécute les mêmes validations, incrémente la version patch, crée le tag `vX.Y.Z` correspondant, pousse le commit de release et le tag sur `main`, publie le paquet sur npm, puis crée une GitHub Release marquée comme Latest.
+
+Pour les pull requests ouvertes depuis ce dépôt, le même workflow publie aussi une préversion npm unique avec le dist-tag `beta` après validation. Installer la dernière beta de PR :
+
+```sh
+npm install -g homebridge-lametric-time-messenger@beta
+```
+
+La version beta contient le numéro de PR et les informations du run GitHub Actions, et ne remplace pas la release stable `latest`.
