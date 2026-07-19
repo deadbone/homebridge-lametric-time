@@ -28,6 +28,8 @@ export const DEFAULTS = {
   soundRepeat: 1,
   frameOrder: 0,
   value: '',
+  silentHoursEnabled: true,
+  silentHoursMode: 'criticalOnly',
 } satisfies Record<string, boolean | number | string>;
 
 export const EMPTY_CONFIG: NormalizedPlatformConfig = {
@@ -39,6 +41,7 @@ export const EMPTY_CONFIG: NormalizedPlatformConfig = {
   duplicateStrategy: 'drop',
   globalDelayMs: DEFAULTS.globalDelayMs,
   testSwitch: DEFAULTS.testSwitch,
+  silentHours: [],
   devices: [],
   messages: [],
 };

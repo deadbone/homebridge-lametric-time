@@ -1,6 +1,14 @@
 import type { IconType, NotificationPriority, SoundCategory } from '../lametric/types.js';
 
 export type QueueDuplicateStrategy = 'enqueue' | 'drop' | 'replace';
+export type SilentHoursMode = 'criticalOnly' | 'mute';
+
+export interface SilentHoursConfig {
+  readonly enabled?: boolean;
+  readonly start: string;
+  readonly end: string;
+  readonly mode?: SilentHoursMode;
+}
 
 export interface LaMetricDeviceConfig {
   readonly id: string;
@@ -52,6 +60,7 @@ export interface LaMetricPlatformConfig {
   readonly duplicateStrategy?: QueueDuplicateStrategy;
   readonly globalDelayMs?: number;
   readonly testSwitch?: boolean;
+  readonly silentHours?: readonly SilentHoursConfig[];
   readonly devices?: readonly LaMetricDeviceConfig[];
   readonly messages?: readonly LaMetricMessageConfig[];
 }
@@ -73,8 +82,14 @@ export interface NormalizedMessageConfig extends Omit<Required<LaMetricMessageCo
   readonly sound?: NormalizedMessageSoundConfig;
 }
 
-export interface NormalizedPlatformConfig extends Required<Omit<LaMetricPlatformConfig, 'devices' | 'messages' | 'name'>> {
+export interface NormalizedSilentHoursConfig extends Required<SilentHoursConfig> {
+  readonly startMinutes: number;
+  readonly endMinutes: number;
+}
+
+export interface NormalizedPlatformConfig extends Required<Omit<LaMetricPlatformConfig, 'devices' | 'messages' | 'name' | 'silentHours'>> {
   readonly name: string;
+  readonly silentHours: readonly NormalizedSilentHoursConfig[];
   readonly devices: readonly NormalizedDeviceConfig[];
   readonly messages: readonly NormalizedMessageConfig[];
 }

@@ -29,6 +29,11 @@ describe('NotificationBuilder', () => {
     expect(payload.model.sound).toBeUndefined();
   });
 
+  it('omits sound when requested', () => {
+    const payload = new NotificationBuilder().build(sampleMessage, {}, { includeSound: false });
+    expect(payload.model.sound).toBeUndefined();
+  });
+
   it('omits icon_type when icon type is none', () => {
     const payload = new NotificationBuilder().build({
       ...sampleMessage,

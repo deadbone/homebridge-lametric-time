@@ -71,4 +71,28 @@ describe('normalizeConfig', () => {
     expect(() => normalizeConfig({ ...validConfig, maxQueueSize: 0 })).toThrow(/maxQueueSize must be an integer between 1 and 500/u);
     expect(() => normalizeConfig({ ...validConfig, globalDelayMs: -1 })).toThrow(/globalDelayMs must be an integer between 0 and 60000/u);
   });
+
+  it('normalizes silent hours ranges', () => {
+    const normalized = normalizeConfig({
+      ...validConfig,
+      silentHours: [{ start: '22:00', end: '07:00', mode: 'mute' }],
+    });
+    expect(normalized.silentHours[0]).toMatchObject({
+      enabled: true,
+      start: '22:00',
+      end: '07:00',
+      mode: 'mute',
+      startMinutes: 1320,
+      endMinutes: 420,
+    });
+  });
+
+  it('rejects invalid silent hours ranges', () => {
+    expect(() => normalizeConfig({ ...validConfig, silentHours: 'night' })).toThrow(/silentHours must be an array/u);
+    expect(() => normalizeConfig({ ...validConfig, silentHours: [{ start: '24:00', end: '07:00' }] })).toThrow(/silentHours\[0\]\.start must use HH:mm/u);
+    expect(() => normalizeConfig({ ...validConfig, silentHours: [{ start: '22:00', end: '22:00' }] })).toThrow(/must be different/u);
+    expect(() => normalizeConfig({ ...validConfig, silentHours: [{ start: '22:00', end: '07:00', mode: 'quiet' }] })).toThrow(
+      /silentHours\[0\]\.mode must be criticalOnly or mute/u,
+    );
+  });
 });

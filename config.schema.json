@@ -59,6 +59,46 @@
         "type": "boolean",
         "default": false
       },
+      "silentHours": {
+        "title": "Silent Hours",
+        "type": "array",
+        "default": [],
+        "buttonText": "Add Silent Hours Range",
+        "items": {
+          "title": "Silent Hours Range",
+          "type": "object",
+          "required": ["start", "end"],
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "title": "Enabled",
+              "type": "boolean",
+              "default": true
+            },
+            "start": {
+              "title": "Start Time",
+              "type": "string",
+              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+              "description": "Local Homebridge time in 24-hour HH:mm format."
+            },
+            "end": {
+              "title": "End Time",
+              "type": "string",
+              "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+              "description": "Local Homebridge time in 24-hour HH:mm format. Ranges can cross midnight."
+            },
+            "mode": {
+              "title": "Mode",
+              "type": "string",
+              "default": "criticalOnly",
+              "oneOf": [
+                { "title": "Only send critical notifications", "enum": ["criticalOnly"] },
+                { "title": "Send notifications without sound", "enum": ["mute"] }
+              ]
+            }
+          }
+        }
+      },
       "devices": {
         "title": "LaMetric TIME V2 Devices",
         "type": "array",
@@ -300,6 +340,23 @@
       "expandable": true,
       "title": "General Settings",
       "items": ["name", "debug", "queueStrategy", "maxQueueSize", "duplicateStrategy", "globalDelayMs", "testSwitch"]
+    },
+    {
+      "type": "fieldset",
+      "expandable": true,
+      "title": "Silent Hours",
+      "items": [
+        {
+          "key": "silentHours",
+          "type": "array",
+          "items": [
+            "silentHours[].enabled",
+            "silentHours[].start",
+            "silentHours[].end",
+            "silentHours[].mode"
+          ]
+        }
+      ]
     },
     {
       "type": "fieldset",

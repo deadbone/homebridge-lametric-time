@@ -52,6 +52,27 @@ describe('LaMetricTimePlatform accessories', () => {
     await accessory.getService('Switch')?.characteristic.onSetHandler?.(true);
     expect(platform.dispatchDeviceConnectionTest).toHaveBeenCalledWith('salon');
   });
+
+  it('skips non-critical messages during critical-only silent hours', async () => {
+    const mocks = createHomebridgeMocks();
+    const platform = new LaMetricTimePlatform(
+      mocks.log as never,
+      config({ silentHours: [{ start: '00:00', end: '23:59', mode: 'criticalOnly' }] }) as never,
+      mocks.api as never,
+    );
+
+    const message = platform.configData.messages[0];
+    expect(message).toBeDefined();
+
+    const result = await platform.dispatchMessage(message as NonNullable<typeof message>);
+
+    expect(result).toEqual({ queued: 0, targets: 1 });
+    expect(mocks.log.info).toHaveBeenCalledWith(
+      '[%s] Notification skipped by silent hours because priority is %s',
+      'Front Door Open',
+      'info',
+    );
+  });
 });
 
 function config(overrides: Record<string, unknown> = {}) {
