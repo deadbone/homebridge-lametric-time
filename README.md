@@ -269,6 +269,8 @@ Configure npm Trusted Publishing for this package with:
 - Allowed actions: `npm publish`
 - Environment name: leave empty unless a GitHub deployment environment is added later.
 
+The publish workflow also handles automatic releases for merged pull requests. When a PR is merged into `main`, `.github/workflows/publish.yml` runs the same validation, bumps the patch version, creates the matching `vX.Y.Z` tag, pushes the release commit and tag back to `main`, then publishes the package to npm.
+
 ## Français
 
 Plugin de plateforme dynamique Homebridge permettant d’envoyer des notifications locales vers une ou plusieurs horloges LaMetric TIME V2.
@@ -520,3 +522,5 @@ Configurer npm Trusted Publishing pour ce package avec :
 - Workflow filename : `publish.yml`
 - Allowed actions : `npm publish`
 - Environment name : laisser vide sauf si un environnement de déploiement GitHub est ajouté plus tard.
+
+Le workflow de publication gère aussi les releases automatiques pour les pull requests mergées. Lorsqu’une PR est mergée dans `main`, `.github/workflows/publish.yml` exécute les mêmes validations, incrémente la version patch, crée le tag `vX.Y.Z` correspondant, pousse le commit de release et le tag sur `main`, puis publie le paquet sur npm.

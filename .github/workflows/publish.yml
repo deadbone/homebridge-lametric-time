@@ -4,13 +4,22 @@ on:
   push:
     tags:
       - "v*"
+  pull_request:
+    types: [closed]
+    branches:
+      - main
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
 jobs:
-  publish:
+  publish-tag:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -48,6 +57,55 @@ jobs:
 
       - name: Verify package contents
         run: npm run verify:pack
+
+      - name: Publish
+        run: npm publish
+
+  release-merged-pr:
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.x
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Verify package contents
+        run: npm run verify:pack
+
+      - name: Configure git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump patch version and create tag
+        run: |
+          npm version patch -m "chore: release v%s [skip ci]"
+
+      - name: Push release commit and tag
+        run: |
+          git push --follow-tags origin HEAD:main
 
       - name: Publish
         run: npm publish
