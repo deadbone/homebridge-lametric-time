@@ -255,10 +255,19 @@ Before publishing:
 
 1. Confirm repository, bugs, homepage, author, and license metadata.
 2. Run `npm run lint`, `npm run build`, `npm test`, and `npm run verify:pack`.
-3. Log in with `npm login`.
-4. Publish the stable release with `npm publish`.
+3. Create and push a release tag matching `package.json`, for example `v0.1.4`.
+4. GitHub Actions publishes the package to npm through Trusted Publishing.
 
 For a scoped package, use `npm publish --access=public` the first time.
+
+Configure npm Trusted Publishing for this package with:
+
+- Publisher: GitHub Actions
+- Organization or user: `deadbone`
+- Repository: `homebridge-lametric-time`
+- Workflow filename: `publish.yml`
+- Allowed actions: `npm publish`
+- Environment name: leave empty unless a GitHub deployment environment is added later.
 
 ## Français
 
@@ -498,7 +507,16 @@ Avant publication :
 
 1. Vérifier les métadonnées repository, bugs, homepage, author et license.
 2. Exécuter `npm run lint`, `npm run build`, `npm test` et `npm run verify:pack`.
-3. Se connecter avec `npm login`.
-4. Publier la version stable avec `npm publish`.
+3. Créer et pousser un tag de release correspondant à `package.json`, par exemple `v0.1.4`.
+4. GitHub Actions publie le package sur npm avec Trusted Publishing.
 
 Pour un paquet scopé, utiliser `npm publish --access=public` lors de la première publication.
+
+Configurer npm Trusted Publishing pour ce package avec :
+
+- Publisher : GitHub Actions
+- Organization or user : `deadbone`
+- Repository : `homebridge-lametric-time`
+- Workflow filename : `publish.yml`
+- Allowed actions : `npm publish`
+- Environment name : laisser vide sauf si un environnement de déploiement GitHub est ajouté plus tard.
