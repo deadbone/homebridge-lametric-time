@@ -43,8 +43,8 @@ export function normalizeConfig(input: unknown): NormalizedPlatformConfig {
   const testSwitch = optionalBoolean(config.testSwitch, DEFAULTS.testSwitch, 'testSwitch', issues);
   const queueStrategy = optionalQueueStrategy(config.queueStrategy, issues);
   const duplicateStrategy = optionalDuplicateStrategy(config.duplicateStrategy, issues);
-  const silentHours = normalizeSilentHours((config.silentHours ?? []) as readonly SilentHoursConfig[], issues);
-  const devices = normalizeDevices((config.devices ?? []) as readonly LaMetricDeviceConfig[], issues);
+  const globalSilentHours = normalizeSilentHours((config.silentHours ?? []) as readonly SilentHoursConfig[], 'silentHours', issues);
+  const devices = normalizeDevices((config.devices ?? []) as readonly LaMetricDeviceConfig[], globalSilentHours, issues);
   const deviceIds = new Set(devices.map((device) => device.id));
   const messages = normalizeMessages((config.messages ?? []) as readonly LaMetricMessageConfig[], deviceIds, issues);
   const name = typeof config.name === 'string' ? cleanRequiredString(config.name, 'name', issues) || DEFAULTS.platformName : DEFAULTS.platformName;
@@ -64,7 +64,6 @@ export function normalizeConfig(input: unknown): NormalizedPlatformConfig {
     duplicateStrategy,
     globalDelayMs,
     testSwitch,
-    silentHours,
     devices,
     messages,
   };
@@ -102,26 +101,26 @@ function optionalDuplicateStrategy(value: unknown, issues: string[]): 'enqueue' 
   return value as 'enqueue' | 'drop' | 'replace';
 }
 
-function normalizeSilentHours(ranges: readonly SilentHoursConfig[], issues: string[]): readonly NormalizedSilentHoursConfig[] {
+function normalizeSilentHours(ranges: readonly SilentHoursConfig[], label: string, issues: string[]): readonly NormalizedSilentHoursConfig[] {
   if (!Array.isArray(ranges)) {
-    issues.push('silentHours must be an array');
+    issues.push(`${label} must be an array`);
     return [];
   }
 
   return ranges.map((range, index) => {
-    const label = `silentHours[${index}]`;
-    const start = cleanTime(range.start, `${label}.start`, issues);
-    const end = cleanTime(range.end, `${label}.end`, issues);
+    const rangeLabel = `${label}[${index}]`;
+    const start = cleanTime(range.start, `${rangeLabel}.start`, issues);
+    const end = cleanTime(range.end, `${rangeLabel}.end`, issues);
     const mode = range.mode ?? DEFAULTS.silentHoursMode;
     if (!SILENT_HOURS_MODES.has(mode)) {
-      issues.push(`${label}.mode must be criticalOnly or mute`);
+      issues.push(`${rangeLabel}.mode must be criticalOnly or mute`);
     }
     if (start.minutes === end.minutes) {
-      issues.push(`${label}.start and ${label}.end must be different`);
+      issues.push(`${rangeLabel}.start and ${rangeLabel}.end must be different`);
     }
 
     return {
-      enabled: optionalBoolean(range.enabled, DEFAULTS.silentHoursEnabled, `${label}.enabled`, issues),
+      enabled: optionalBoolean(range.enabled, DEFAULTS.silentHoursEnabled, `${rangeLabel}.enabled`, issues),
       start: start.value,
       end: end.value,
       mode: SILENT_HOURS_MODES.has(mode) ? mode : DEFAULTS.silentHoursMode,
@@ -131,7 +130,11 @@ function normalizeSilentHours(ranges: readonly SilentHoursConfig[], issues: stri
   });
 }
 
-function normalizeDevices(devices: readonly LaMetricDeviceConfig[], issues: string[]): readonly NormalizedDeviceConfig[] {
+function normalizeDevices(
+  devices: readonly LaMetricDeviceConfig[],
+  globalSilentHours: readonly NormalizedSilentHoursConfig[],
+  issues: string[],
+): readonly NormalizedDeviceConfig[] {
   if (!Array.isArray(devices)) {
     issues.push('devices must be an array');
     return [];
@@ -171,6 +174,10 @@ function normalizeDevices(devices: readonly LaMetricDeviceConfig[], issues: stri
       retryCount: boundedInteger(device.retryCount, DEFAULTS.retryCount, 0, 5, `${label}.retryCount`, issues),
       retryBackoffMs: boundedInteger(device.retryBackoffMs, DEFAULTS.retryBackoffMs, 0, 30000, `${label}.retryBackoffMs`, issues),
       connectionTestSwitch: optionalBoolean(device.connectionTestSwitch, DEFAULTS.connectionTestSwitch, `${label}.connectionTestSwitch`, issues),
+      silentHours:
+        device.silentHours === undefined
+          ? globalSilentHours
+          : normalizeSilentHours(device.silentHours as readonly SilentHoursConfig[], `${label}.silentHours`, issues),
     };
   });
 }

@@ -57,7 +57,7 @@ describe('LaMetricTimePlatform accessories', () => {
     const mocks = createHomebridgeMocks();
     const platform = new LaMetricTimePlatform(
       mocks.log as never,
-      config({ silentHours: [{ start: '00:00', end: '23:59', mode: 'criticalOnly' }] }) as never,
+      config({ devices: [{ id: 'salon', name: 'LaMetric Salon', host: '192.168.1.50', apiKey: 'SECRET', retryCount: 0, silentHours: [{ start: '00:00', end: '23:59', mode: 'criticalOnly' }] }] }) as never,
       mocks.api as never,
     );
 
@@ -68,8 +68,37 @@ describe('LaMetricTimePlatform accessories', () => {
 
     expect(result).toEqual({ queued: 0, targets: 1 });
     expect(mocks.log.info).toHaveBeenCalledWith(
-      '[%s] Notification skipped by silent hours because priority is %s',
+      '[%s] Notification skipped for %s by silent hours because priority is %s',
       'Front Door Open',
+      'LaMetric Salon',
+      'info',
+    );
+  });
+
+  it('applies silent hours only to the targeted device', async () => {
+    const mocks = createHomebridgeMocks();
+    const platform = new LaMetricTimePlatform(
+      mocks.log as never,
+      config({
+        devices: [
+          { id: 'salon', name: 'LaMetric Salon', host: '192.168.1.50', apiKey: 'SECRET', retryCount: 0, silentHours: [{ start: '00:00', end: '23:59', mode: 'criticalOnly' }] },
+          { id: 'bureau', name: 'LaMetric Bureau', host: '192.168.1.51', apiKey: 'SECRET', retryCount: 0 },
+        ],
+        messages: [{ id: 'front-door-open', name: 'Front Door Open', deviceIds: ['salon', 'bureau'], exposeSwitch: true, autoResetMs: 1000, frames: [{ text: 'Door open' }] }],
+      }) as never,
+      mocks.api as never,
+    );
+
+    const message = platform.configData.messages[0];
+    expect(message).toBeDefined();
+
+    const result = await platform.dispatchMessage(message as NonNullable<typeof message>);
+
+    expect(result).toEqual({ queued: 1, targets: 2 });
+    expect(mocks.log.info).toHaveBeenCalledWith(
+      '[%s] Notification skipped for %s by silent hours because priority is %s',
+      'Front Door Open',
+      'LaMetric Salon',
       'info',
     );
   });

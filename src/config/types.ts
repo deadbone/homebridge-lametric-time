@@ -21,6 +21,7 @@ export interface LaMetricDeviceConfig {
   readonly retryCount?: number;
   readonly retryBackoffMs?: number;
   readonly connectionTestSwitch?: boolean;
+  readonly silentHours?: readonly SilentHoursConfig[];
 }
 
 export interface MessageFrameConfig {
@@ -65,8 +66,9 @@ export interface LaMetricPlatformConfig {
   readonly messages?: readonly LaMetricMessageConfig[];
 }
 
-export interface NormalizedDeviceConfig extends Required<Omit<LaMetricDeviceConfig, 'apiKey'>> {
+export interface NormalizedDeviceConfig extends Required<Omit<LaMetricDeviceConfig, 'apiKey' | 'silentHours'>> {
   readonly apiKey: string;
+  readonly silentHours: readonly NormalizedSilentHoursConfig[];
 }
 
 export interface NormalizedMessageSoundConfig {
@@ -89,7 +91,6 @@ export interface NormalizedSilentHoursConfig extends Required<SilentHoursConfig>
 
 export interface NormalizedPlatformConfig extends Required<Omit<LaMetricPlatformConfig, 'devices' | 'messages' | 'name' | 'silentHours'>> {
   readonly name: string;
-  readonly silentHours: readonly NormalizedSilentHoursConfig[];
   readonly devices: readonly NormalizedDeviceConfig[];
   readonly messages: readonly NormalizedMessageConfig[];
 }
