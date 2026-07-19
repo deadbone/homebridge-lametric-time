@@ -5,7 +5,12 @@ const output = execFileSync('npm', ['pack', '--dry-run', '--json'], {
   stdio: ['ignore', 'pipe', 'inherit'],
 });
 
-const [pack] = JSON.parse(output);
+const parsed = JSON.parse(output);
+const pack = Array.isArray(parsed) ? parsed[0] : parsed;
+if (!pack || !Array.isArray(pack.files)) {
+  console.error('npm pack did not return a package file list.');
+  process.exit(1);
+}
 const files = new Set(pack.files.map((file) => file.path));
 const requiredFiles = ['dist/index.js', 'assets/plugin-icon.png', 'config.schema.json', 'README.md', 'CHANGELOG.md', 'LICENSE'];
 const missing = requiredFiles.filter((file) => !files.has(file));
