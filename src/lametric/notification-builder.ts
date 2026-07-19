@@ -5,7 +5,8 @@ import type { LaMetricNotificationPayload } from './types.js';
 export class NotificationBuilder {
   public constructor(private readonly templateEngine = new TemplateEngine()) {}
 
-  public build(message: NormalizedMessageConfig, context: TemplateContext = {}): LaMetricNotificationPayload {
+  public build(message: NormalizedMessageConfig, context: TemplateContext = {}, options: { readonly includeSound?: boolean } = {}): LaMetricNotificationPayload {
+    const includeSound = options.includeSound ?? true;
     const frames = message.frames.map((frame) => {
       const templateContext = {
         name: context.name ?? message.name,
@@ -23,7 +24,7 @@ export class NotificationBuilder {
       model: {
         cycles: message.cycles,
         frames,
-        ...(message.sound?.enabled
+        ...(includeSound && message.sound?.enabled
           ? {
               sound: {
                 category: message.sound.category,

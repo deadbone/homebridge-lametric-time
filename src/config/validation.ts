@@ -5,6 +5,9 @@ import type {
   NormalizedDeviceConfig,
   NormalizedMessageConfig,
   NormalizedPlatformConfig,
+  NormalizedSilentHoursConfig,
+  SilentHoursConfig,
+  SilentHoursMode,
 } from './types.js';
 import { DEFAULT_PORT_BY_PROTOCOL, DEFAULTS, EMPTY_CONFIG } from './defaults.js';
 import type { IconType, NotificationPriority, SoundCategory } from '../lametric/types.js';
@@ -14,7 +17,9 @@ const PRIORITIES = new Set<NotificationPriority>(['info', 'warning', 'critical']
 const ICON_TYPES = new Set<IconType>(['none', 'info', 'alert']);
 const SOUND_CATEGORIES = new Set<SoundCategory>(['notifications', 'alarms']);
 const DUPLICATE_STRATEGIES = new Set(['enqueue', 'drop', 'replace']);
+const SILENT_HOURS_MODES = new Set<SilentHoursMode>(['criticalOnly', 'mute']);
 const ID_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/u;
+const TIME_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/u;
 
 export class ConfigValidationError extends Error {
   public constructor(public readonly issues: readonly string[]) {
@@ -38,6 +43,7 @@ export function normalizeConfig(input: unknown): NormalizedPlatformConfig {
   const testSwitch = optionalBoolean(config.testSwitch, DEFAULTS.testSwitch, 'testSwitch', issues);
   const queueStrategy = optionalQueueStrategy(config.queueStrategy, issues);
   const duplicateStrategy = optionalDuplicateStrategy(config.duplicateStrategy, issues);
+  const silentHours = normalizeSilentHours((config.silentHours ?? []) as readonly SilentHoursConfig[], issues);
   const devices = normalizeDevices((config.devices ?? []) as readonly LaMetricDeviceConfig[], issues);
   const deviceIds = new Set(devices.map((device) => device.id));
   const messages = normalizeMessages((config.messages ?? []) as readonly LaMetricMessageConfig[], deviceIds, issues);
@@ -58,6 +64,7 @@ export function normalizeConfig(input: unknown): NormalizedPlatformConfig {
     duplicateStrategy,
     globalDelayMs,
     testSwitch,
+    silentHours,
     devices,
     messages,
   };
@@ -93,6 +100,35 @@ function optionalDuplicateStrategy(value: unknown, issues: string[]): 'enqueue' 
     return 'drop';
   }
   return value as 'enqueue' | 'drop' | 'replace';
+}
+
+function normalizeSilentHours(ranges: readonly SilentHoursConfig[], issues: string[]): readonly NormalizedSilentHoursConfig[] {
+  if (!Array.isArray(ranges)) {
+    issues.push('silentHours must be an array');
+    return [];
+  }
+
+  return ranges.map((range, index) => {
+    const label = `silentHours[${index}]`;
+    const start = cleanTime(range.start, `${label}.start`, issues);
+    const end = cleanTime(range.end, `${label}.end`, issues);
+    const mode = range.mode ?? DEFAULTS.silentHoursMode;
+    if (!SILENT_HOURS_MODES.has(mode)) {
+      issues.push(`${label}.mode must be criticalOnly or mute`);
+    }
+    if (start.minutes === end.minutes) {
+      issues.push(`${label}.start and ${label}.end must be different`);
+    }
+
+    return {
+      enabled: optionalBoolean(range.enabled, DEFAULTS.silentHoursEnabled, `${label}.enabled`, issues),
+      start: start.value,
+      end: end.value,
+      mode: SILENT_HOURS_MODES.has(mode) ? mode : DEFAULTS.silentHoursMode,
+      startMinutes: start.minutes,
+      endMinutes: end.minutes,
+    };
+  });
 }
 
 function normalizeDevices(devices: readonly LaMetricDeviceConfig[], issues: string[]): readonly NormalizedDeviceConfig[] {
@@ -273,6 +309,16 @@ function boundedInteger(
     return fallback;
   }
   return candidate;
+}
+
+function cleanTime(value: string | undefined, label: string, issues: string[]): { value: string; minutes: number } {
+  const normalized = cleanRequiredString(value, label, issues);
+  const match = TIME_PATTERN.exec(normalized);
+  if (!match) {
+    issues.push(`${label} must use HH:mm 24-hour format`);
+    return { value: normalized, minutes: 0 };
+  }
+  return { value: normalized, minutes: Number(match[1]) * 60 + Number(match[2]) };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

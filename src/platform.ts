@@ -7,6 +7,7 @@ import { MessageAccessory } from './accessories/message-accessory.js';
 import { ConnectionTestAccessory } from './accessories/connection-test-accessory.js';
 import { QueueManager } from './services/queue.js';
 import { RateLimiter } from './services/rate-limiter.js';
+import { SilentHours } from './services/silent-hours.js';
 import { PluginLogger } from './utils/logger.js';
 import { sanitizeHomeKitName } from './utils/security.js';
 import { ACCESSORY_UUID_NAMESPACE, PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
@@ -24,6 +25,7 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
   private readonly queueManager = new QueueManager();
   private readonly rateLimiters = new Map<string, RateLimiter>();
   private readonly builder = new NotificationBuilder();
+  private readonly silentHours: SilentHours;
 
   public constructor(
     public readonly log: Logging,
@@ -39,6 +41,7 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
       throw error;
     }
     this.logger = new PluginLogger(log, this.configData.debug);
+    this.silentHours = new SilentHours(this.configData.silentHours);
 
     for (const device of this.configData.devices) {
       this.clients.set(device.id, new LaMetricClient(device));
@@ -59,7 +62,13 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
   }
 
   public async dispatchMessage(message: NormalizedMessageConfig): Promise<MessageDispatchResult> {
-    const payload = this.builder.build(message, { name: message.name, value: message.value });
+    const silentHoursPolicy = this.silentHours.currentPolicy();
+    if (silentHoursPolicy === 'criticalOnly' && message.priority !== 'critical') {
+      this.logger.info('[%s] Notification skipped by silent hours because priority is %s', message.name, message.priority);
+      return { queued: 0, targets: message.deviceIds.length };
+    }
+
+    const payload = this.builder.build(message, { name: message.name, value: message.value }, { includeSound: silentHoursPolicy !== 'mute' });
     let queued = 0;
 
     for (const deviceId of message.deviceIds) {
