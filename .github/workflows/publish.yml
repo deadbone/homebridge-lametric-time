@@ -5,7 +5,7 @@ on:
     tags:
       - "v*"
   pull_request:
-    types: [closed]
+    types: [opened, synchronize, reopened, ready_for_review, closed]
     branches:
       - main
 
@@ -18,6 +18,49 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  publish-pr-beta:
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24.x
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Update npm
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Verify package contents
+        run: npm run verify:pack
+
+      - name: Set beta version
+        run: |
+          CURRENT_VERSION="$(node -p "require('./package.json').version")"
+          NEXT_PATCH="$(node -e "const [major, minor, patch] = process.argv[1].split('.').map(Number); console.log([major, minor, patch + 1].join('.'))" "$CURRENT_VERSION")"
+          BETA_VERSION="${NEXT_PATCH}-beta.pr.${{ github.event.pull_request.number }}.${{ github.run_number }}.${{ github.run_attempt }}"
+          npm version "$BETA_VERSION" --no-git-tag-version
+          echo "Publishing beta version ${BETA_VERSION}"
+
+      - name: Publish beta
+        run: npm publish --tag beta
+
   publish-tag:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
