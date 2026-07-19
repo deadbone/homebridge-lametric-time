@@ -42,6 +42,7 @@ export const sampleConfig: NormalizedPlatformConfig = {
       retryCount: 2,
       retryBackoffMs: 0,
       connectionTestSwitch: false,
+      silentHours: [],
     },
   ],
   messages: [sampleMessage],

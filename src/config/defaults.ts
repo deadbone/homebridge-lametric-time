@@ -41,7 +41,6 @@ export const EMPTY_CONFIG: NormalizedPlatformConfig = {
   duplicateStrategy: 'drop',
   globalDelayMs: DEFAULTS.globalDelayMs,
   testSwitch: DEFAULTS.testSwitch,
-  silentHours: [],
   devices: [],
   messages: [],
 };

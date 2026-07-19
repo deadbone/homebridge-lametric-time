@@ -72,8 +72,7 @@ The plugin ships a `config.schema.json`, so Homebridge UI can render the configu
 Sections:
 
 - General settings: debug logging, queue size, duplicate behavior, global delay, optional test switch.
-- Silent hours: time ranges that either allow only critical notifications or mute notification sounds.
-- LaMetric TIME V2 devices: internal ID, display name, host, protocol, port, API key, timeout, retries, optional per-device connection test switch.
+- LaMetric TIME V2 devices: internal ID, display name, host, protocol, port, API key, timeout, retries, optional per-device connection test switch, optional silent hours.
 - Messages: internal ID, name, target devices, HomeKit switch exposure, auto-reset, cooldown, priority, icon type, cycles, frames, optional sound.
 
 The schema can mask the API key with `format: password`. Enable `connectionTestSwitch` on a device to expose a HomeKit switch named `Test <device name>`. Turning it on sends a critical local test notification to that device only and the switch automatically returns to off.
@@ -107,20 +106,6 @@ The plugin keeps a stable HomeKit accessory UUID namespace that does not depend 
   "duplicateStrategy": "drop",
   "globalDelayMs": 250,
   "testSwitch": true,
-  "silentHours": [
-    {
-      "enabled": true,
-      "start": "22:00",
-      "end": "07:00",
-      "mode": "criticalOnly"
-    },
-    {
-      "enabled": true,
-      "start": "20:00",
-      "end": "22:00",
-      "mode": "mute"
-    }
-  ],
   "devices": [
     {
       "id": "salon",
@@ -132,7 +117,21 @@ The plugin keeps a stable HomeKit accessory UUID namespace that does not depend 
       "timeoutMs": 5000,
       "retryCount": 2,
       "retryBackoffMs": 500,
-      "connectionTestSwitch": true
+      "connectionTestSwitch": true,
+      "silentHours": [
+        {
+          "enabled": true,
+          "start": "22:00",
+          "end": "07:00",
+          "mode": "criticalOnly"
+        },
+        {
+          "enabled": true,
+          "start": "20:00",
+          "end": "22:00",
+          "mode": "mute"
+        }
+      ]
     }
   ],
   "messages": [
@@ -208,14 +207,16 @@ Sound categories supported by the API are `notifications` and `alarms`. The plug
 
 ### Silent hours
 
-Use `silentHours` to define quiet ranges using the Homebridge server local time in `HH:mm` format. Ranges can cross midnight, for example `22:00` to `07:00`.
+Use `devices[].silentHours` to define quiet ranges for each LaMetric using the Homebridge server local time in `HH:mm` format. Ranges can cross midnight, for example `22:00` to `07:00`.
+
+For compatibility with `0.1.5`, a top-level `silentHours` block is still accepted as a fallback for devices that do not define their own ranges. Prefer per-device configuration for new setups.
 
 Supported modes:
 
-- `criticalOnly`: only messages with priority `critical` are queued during the range.
-- `mute`: messages are still queued, but the outgoing LaMetric payload omits `sound`.
+- `criticalOnly`: only messages with priority `critical` are queued for that LaMetric during the range.
+- `mute`: messages are still queued for that LaMetric, but the outgoing payload omits `sound`.
 
-If ranges overlap, `criticalOnly` takes precedence over `mute`.
+If ranges overlap on the same LaMetric, `criticalOnly` takes precedence over `mute`. Messages targeting multiple devices are evaluated separately for each LaMetric.
 
 ### Queue and anti-spam
 
@@ -372,8 +373,7 @@ Le plugin fournit un fichier `config.schema.json`, ce qui permet à Homebridge U
 Sections :
 
 - Réglages généraux : logs de debug, taille de file, comportement des doublons, délai global, switch de test optionnel.
-- Horaires silencieux : plages horaires qui laissent passer uniquement les notifications critiques ou coupent les sons.
-- Appareils LaMetric TIME V2 : identifiant interne, nom affiché, hôte, protocole, port, clé API, délai d’attente, tentatives.
+- Appareils LaMetric TIME V2 : identifiant interne, nom affiché, hôte, protocole, port, clé API, délai d’attente, tentatives, switch de test optionnel, horaires silencieux optionnels.
 - Messages : identifiant interne, nom, appareils cibles, exposition du switch HomeKit, réinitialisation automatique, cooldown, priorité, type d’icône, cycles, frames, son optionnel.
 
 Le schéma masque la clé API avec `format: password`. Les boutons de test par appareil ne sont pas inclus dans cette version, car le formulaire standard Homebridge UI ne fournit pas de flux serveur fiable pour ce type de bouton.
@@ -407,20 +407,6 @@ Le plugin conserve un namespace UUID HomeKit stable qui ne dépend pas du fait q
   "duplicateStrategy": "drop",
   "globalDelayMs": 250,
   "testSwitch": true,
-  "silentHours": [
-    {
-      "enabled": true,
-      "start": "22:00",
-      "end": "07:00",
-      "mode": "criticalOnly"
-    },
-    {
-      "enabled": true,
-      "start": "20:00",
-      "end": "22:00",
-      "mode": "mute"
-    }
-  ],
   "devices": [
     {
       "id": "salon",
@@ -431,7 +417,21 @@ Le plugin conserve un namespace UUID HomeKit stable qui ne dépend pas du fait q
       "apiKey": "SECRET",
       "timeoutMs": 5000,
       "retryCount": 2,
-      "retryBackoffMs": 500
+      "retryBackoffMs": 500,
+      "silentHours": [
+        {
+          "enabled": true,
+          "start": "22:00",
+          "end": "07:00",
+          "mode": "criticalOnly"
+        },
+        {
+          "enabled": true,
+          "start": "20:00",
+          "end": "22:00",
+          "mode": "mute"
+        }
+      ]
     }
   ],
   "messages": [
@@ -507,14 +507,16 @@ Les catégories de son prises en charge par l’API sont `notifications` et `ala
 
 ### Horaires silencieux
 
-Utilisez `silentHours` pour définir des plages calmes avec l’heure locale du serveur Homebridge au format `HH:mm`. Les plages peuvent traverser minuit, par exemple `22:00` à `07:00`.
+Utilisez `devices[].silentHours` pour définir des plages calmes par LaMetric avec l’heure locale du serveur Homebridge au format `HH:mm`. Les plages peuvent traverser minuit, par exemple `22:00` à `07:00`.
+
+Pour rester compatible avec `0.1.5`, un bloc `silentHours` au niveau racine est encore accepté comme fallback pour les appareils qui ne définissent pas leurs propres plages. Privilégiez la configuration par appareil pour les nouvelles installations.
 
 Modes disponibles :
 
-- `criticalOnly` : seuls les messages avec la priorité `critical` sont mis en file pendant la plage.
-- `mute` : les messages sont encore mis en file, mais le payload envoyé à LaMetric omet `sound`.
+- `criticalOnly` : seuls les messages avec la priorité `critical` sont mis en file pour cette LaMetric pendant la plage.
+- `mute` : les messages sont encore mis en file pour cette LaMetric, mais le payload envoyé omet `sound`.
 
-Si plusieurs plages se chevauchent, `criticalOnly` est prioritaire sur `mute`.
+Si plusieurs plages se chevauchent sur la même LaMetric, `criticalOnly` est prioritaire sur `mute`. Les messages ciblant plusieurs appareils sont évalués séparément pour chaque LaMetric.
 
 ### File d’attente et anti-spam
 

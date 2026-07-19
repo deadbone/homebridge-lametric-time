@@ -75,9 +75,9 @@ describe('normalizeConfig', () => {
   it('normalizes silent hours ranges', () => {
     const normalized = normalizeConfig({
       ...validConfig,
-      silentHours: [{ start: '22:00', end: '07:00', mode: 'mute' }],
+      devices: [{ id: 'salon', name: 'One', host: '192.168.1.2', apiKey: 'SECRET', silentHours: [{ start: '22:00', end: '07:00', mode: 'mute' }] }],
     });
-    expect(normalized.silentHours[0]).toMatchObject({
+    expect(normalized.devices[0]?.silentHours[0]).toMatchObject({
       enabled: true,
       start: '22:00',
       end: '07:00',
@@ -87,12 +87,46 @@ describe('normalizeConfig', () => {
     });
   });
 
+  it('uses global silent hours as a compatibility fallback for devices', () => {
+    const normalized = normalizeConfig({
+      ...validConfig,
+      silentHours: [{ start: '22:00', end: '07:00', mode: 'criticalOnly' }],
+    });
+    expect(normalized.devices[0]?.silentHours[0]).toMatchObject({
+      start: '22:00',
+      end: '07:00',
+      mode: 'criticalOnly',
+    });
+  });
+
+  it('prefers per-device silent hours over the global fallback', () => {
+    const normalized = normalizeConfig({
+      ...validConfig,
+      silentHours: [{ start: '22:00', end: '07:00', mode: 'criticalOnly' }],
+      devices: [{ id: 'salon', name: 'One', host: '192.168.1.2', apiKey: 'SECRET', silentHours: [{ start: '20:00', end: '21:00', mode: 'mute' }] }],
+    });
+    expect(normalized.devices[0]?.silentHours).toHaveLength(1);
+    expect(normalized.devices[0]?.silentHours[0]).toMatchObject({
+      start: '20:00',
+      end: '21:00',
+      mode: 'mute',
+    });
+  });
+
   it('rejects invalid silent hours ranges', () => {
-    expect(() => normalizeConfig({ ...validConfig, silentHours: 'night' })).toThrow(/silentHours must be an array/u);
-    expect(() => normalizeConfig({ ...validConfig, silentHours: [{ start: '24:00', end: '07:00' }] })).toThrow(/silentHours\[0\]\.start must use HH:mm/u);
-    expect(() => normalizeConfig({ ...validConfig, silentHours: [{ start: '22:00', end: '22:00' }] })).toThrow(/must be different/u);
-    expect(() => normalizeConfig({ ...validConfig, silentHours: [{ start: '22:00', end: '07:00', mode: 'quiet' }] })).toThrow(
-      /silentHours\[0\]\.mode must be criticalOnly or mute/u,
+    expect(() => normalizeConfig({ ...validConfig, devices: [{ id: 'salon', name: 'One', host: '192.168.1.2', apiKey: 'SECRET', silentHours: 'night' }] })).toThrow(
+      /devices\[0\]\.silentHours must be an array/u,
+    );
+    expect(() =>
+      normalizeConfig({ ...validConfig, devices: [{ id: 'salon', name: 'One', host: '192.168.1.2', apiKey: 'SECRET', silentHours: [{ start: '24:00', end: '07:00' }] }] }),
+    ).toThrow(/devices\[0\]\.silentHours\[0\]\.start must use HH:mm/u);
+    expect(() =>
+      normalizeConfig({ ...validConfig, devices: [{ id: 'salon', name: 'One', host: '192.168.1.2', apiKey: 'SECRET', silentHours: [{ start: '22:00', end: '22:00' }] }] }),
+    ).toThrow(/must be different/u);
+    expect(() =>
+      normalizeConfig({ ...validConfig, devices: [{ id: 'salon', name: 'One', host: '192.168.1.2', apiKey: 'SECRET', silentHours: [{ start: '22:00', end: '07:00', mode: 'quiet' }] }] }),
+    ).toThrow(
+      /devices\[0\]\.silentHours\[0\]\.mode must be criticalOnly or mute/u,
     );
   });
 });

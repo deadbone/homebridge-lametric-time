@@ -24,8 +24,8 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
   private readonly clients = new Map<string, LaMetricClient>();
   private readonly queueManager = new QueueManager();
   private readonly rateLimiters = new Map<string, RateLimiter>();
+  private readonly silentHours = new Map<string, SilentHours>();
   private readonly builder = new NotificationBuilder();
-  private readonly silentHours: SilentHours;
 
   public constructor(
     public readonly log: Logging,
@@ -41,11 +41,11 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
       throw error;
     }
     this.logger = new PluginLogger(log, this.configData.debug);
-    this.silentHours = new SilentHours(this.configData.silentHours);
 
     for (const device of this.configData.devices) {
       this.clients.set(device.id, new LaMetricClient(device));
       this.rateLimiters.set(device.id, new RateLimiter(this.configData.globalDelayMs));
+      this.silentHours.set(device.id, new SilentHours(device.silentHours));
     }
 
     this.api.on('didFinishLaunching', () => {
@@ -62,24 +62,25 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
   }
 
   public async dispatchMessage(message: NormalizedMessageConfig): Promise<MessageDispatchResult> {
-    const silentHoursPolicy = this.silentHours.currentPolicy();
-    if (silentHoursPolicy === 'criticalOnly' && message.priority !== 'critical') {
-      this.logger.info('[%s] Notification skipped by silent hours because priority is %s', message.name, message.priority);
-      return { queued: 0, targets: message.deviceIds.length };
-    }
-
-    const payload = this.builder.build(message, { name: message.name, value: message.value }, { includeSound: silentHoursPolicy !== 'mute' });
     let queued = 0;
 
     for (const deviceId of message.deviceIds) {
       const device = this.getDevice(deviceId);
       const client = this.clients.get(deviceId);
       const limiter = this.rateLimiters.get(deviceId);
+      const silentHours = this.silentHours.get(deviceId);
       if (!device || !client || !limiter) {
         this.logger.warn('[%s] Ignoring unknown LaMetric device %s', message.name, deviceId);
         continue;
       }
 
+      const silentHoursPolicy = silentHours?.currentPolicy() ?? 'none';
+      if (silentHoursPolicy === 'criticalOnly' && message.priority !== 'critical') {
+        this.logger.info('[%s] Notification skipped for %s by silent hours because priority is %s', message.name, device.name, message.priority);
+        continue;
+      }
+
+      const payload = this.builder.build(message, { name: message.name, value: message.value }, { includeSound: silentHoursPolicy !== 'mute' });
       const queue = this.queueManager.getQueue(device.id, {
         maxSize: this.configData.maxQueueSize,
         duplicateStrategy: this.configData.duplicateStrategy,
