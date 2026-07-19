@@ -8,8 +8,6 @@
 
 Dynamic Homebridge platform plugin for sending local notifications to one or more LaMetric TIME V2 clocks.
 
-> Stable release: this plugin is versioned as `0.1.3`.
-
 > Compatibility notice: this plugin targets LaMetric TIME V2 / 2022+ devices. The first-generation LaMetric TIME is not supported by this plugin because its local API key/authentication flow can differ and has not been validated reliably.
 
 The plugin uses the LaMetric Device API v2 local endpoint:
