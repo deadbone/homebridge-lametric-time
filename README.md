@@ -280,6 +280,13 @@ npm run verify:pack
 
 Tests mock the LaMetric API and do not require a real device.
 
+### Support
+
+If this plugin is useful to you, you can support its maintenance through:
+
+- [GitHub Sponsors](https://github.com/sponsors/deadbone)
+- [Ko-fi](https://ko-fi.com/deadbone111019)
+
 ### Publishing
 
 Before publishing:
@@ -575,6 +582,13 @@ npm run verify:pack
 ```
 
 Les tests simulent l’API LaMetric et ne nécessitent pas d’appareil réel.
+
+### Soutenir
+
+Si ce plugin vous est utile, vous pouvez soutenir sa maintenance via :
+
+- [GitHub Sponsors](https://github.com/sponsors/deadbone)
+- [Ko-fi](https://ko-fi.com/deadbone111019)
 
 ### Publication
 
