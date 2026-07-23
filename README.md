@@ -10,6 +10,13 @@ Dynamic Homebridge platform plugin for sending local notifications to one or mor
 
 > Compatibility notice: this plugin targets LaMetric TIME V2 / 2022+ devices. The first-generation LaMetric TIME is not supported by this plugin because its local API key/authentication flow can differ and has not been validated reliably.
 
+### Documentation
+
+Detailed documentation is available in the repository wiki:
+
+- [Home](wiki/Home.md)
+- [Configuration options](wiki/Configuration-Options.md)
+
 The plugin uses the LaMetric Device API v2 local endpoint:
 
 ```text
@@ -310,6 +317,13 @@ Plugin de plateforme dynamique Homebridge permettant d’envoyer des notificatio
 > Version stable : ce plugin est actuellement en `0.1.3`.
 
 > Note de compatibilité : ce plugin cible uniquement les appareils LaMetric TIME V2 / 2022+. La première génération de LaMetric TIME n’est pas prise en charge, car son flux d’authentification / clé API locale peut différer et n’a pas pu être validé de façon fiable.
+
+### Documentation
+
+La documentation detaillee est disponible dans le wiki du depot :
+
+- [Accueil](wiki/Home.md)
+- [Options de configuration](wiki/Configuration-Options.md)
 
 Le plugin utilise l’endpoint local LaMetric Device API v2 :
 
