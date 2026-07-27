@@ -321,7 +321,7 @@ The beta version includes the PR number and GitHub Actions run details, and does
 
 Plugin de plateforme dynamique Homebridge permettant d’envoyer des notifications locales vers une ou plusieurs horloges LaMetric TIME V2.
 
-> Version stable : ce plugin est actuellement en `0.1.3`.
+> Version stable : ce plugin est actuellement en `0.1.7`.
 
 > Note de compatibilité : ce plugin cible uniquement les appareils LaMetric TIME V2 / 2022+. La première génération de LaMetric TIME n’est pas prise en charge, car son flux d’authentification / clé API locale peut différer et n’a pas pu être validé de façon fiable.
 
