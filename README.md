@@ -214,7 +214,7 @@ Sound categories supported by the API are `notifications` and `alarms`. The plug
 
 Use `devices[].silentHours` to define quiet ranges for each LaMetric using the Homebridge server local time in `HH:mm` format. Ranges can cross midnight, for example `22:00` to `07:00`.
 
-For compatibility with `0.1.5`, a top-level `silentHours` block is still accepted as a fallback for devices that do not define their own ranges. Prefer per-device configuration for new setups.
+A top-level `silentHours` block is still accepted as a fallback for devices that do not define their own ranges. Prefer per-device configuration for new setups.
 
 Supported modes:
 
@@ -293,7 +293,7 @@ Before publishing:
 
 1. Confirm repository, bugs, homepage, author, and license metadata.
 2. Run `npm run lint`, `npm run build`, `npm test`, and `npm run verify:pack`.
-3. Create and push a release tag matching `package.json`, for example `v0.1.4`.
+3. Create and push a release tag matching `package.json`.
 4. GitHub Actions publishes the package to npm through Trusted Publishing.
 
 For a scoped package, use `npm publish --access=public` the first time.
@@ -307,7 +307,7 @@ Configure npm Trusted Publishing for this package with:
 - Allowed actions: `npm publish`
 - Environment name: leave empty unless a GitHub deployment environment is added later.
 
-The publish workflow also handles automatic releases for merged pull requests. When a PR is merged into `main`, `.github/workflows/publish.yml` runs the same validation, bumps the patch version, creates the matching `vX.Y.Z` tag, pushes the release commit and tag back to `main`, publishes the package to npm, then creates a GitHub Release marked as Latest.
+The publish workflow also handles automatic releases for merged pull requests. When a PR is merged into `main`, `.github/workflows/publish.yml` runs the same validation, bumps the patch, creates the matching release tag, pushes the release commit and tag back to `main`, publishes the package to npm, then creates a GitHub Release marked as Latest.
 
 For pull requests opened from this repository, the same workflow publishes a unique npm prerelease with the `beta` dist-tag after validation. Install the latest PR beta with:
 
@@ -315,13 +315,11 @@ For pull requests opened from this repository, the same workflow publishes a uni
 npm install -g homebridge-lametric-time-messenger@beta
 ```
 
-The beta version includes the PR number and GitHub Actions run details, and does not replace the stable `latest` release.
+The beta package includes the PR number and GitHub Actions run details, and does not replace the stable `latest` release.
 
 ## Français
 
 Plugin de plateforme dynamique Homebridge permettant d’envoyer des notifications locales vers une ou plusieurs horloges LaMetric TIME V2.
-
-> Version stable : ce plugin est actuellement en `0.1.7`.
 
 > Note de compatibilité : ce plugin cible uniquement les appareils LaMetric TIME V2 / 2022+. La première génération de LaMetric TIME n’est pas prise en charge, car son flux d’authentification / clé API locale peut différer et n’a pas pu être validé de façon fiable.
 
@@ -395,7 +393,7 @@ Sections :
 - Appareils LaMetric TIME V2 : identifiant interne, nom affiché, hôte, protocole, port, clé API, délai d’attente, tentatives, switch de test optionnel, horaires silencieux optionnels.
 - Messages : identifiant interne, nom, appareils cibles, exposition du switch HomeKit, réinitialisation automatique, cooldown, priorité, type d’icône, cycles, frames, son optionnel.
 
-Le schéma masque la clé API avec `format: password`. Les boutons de test par appareil ne sont pas inclus dans cette version, car le formulaire standard Homebridge UI ne fournit pas de flux serveur fiable pour ce type de bouton.
+Le schéma masque la clé API avec `format: password`. Les boutons de test par appareil ne sont pas inclus, car le formulaire standard Homebridge UI ne fournit pas de flux serveur fiable pour ce type de bouton.
 
 La documentation détaillée des options de configuration est disponible dans le wiki du dépôt.
 
@@ -528,7 +526,7 @@ Les catégories de son prises en charge par l’API sont `notifications` et `ala
 
 Utilisez `devices[].silentHours` pour définir des plages calmes par LaMetric avec l’heure locale du serveur Homebridge au format `HH:mm`. Les plages peuvent traverser minuit, par exemple `22:00` à `07:00`.
 
-Pour rester compatible avec `0.1.5`, un bloc `silentHours` au niveau racine est encore accepté comme fallback pour les appareils qui ne définissent pas leurs propres plages. Privilégiez la configuration par appareil pour les nouvelles installations.
+Un bloc `silentHours` au niveau racine est encore accepté comme fallback pour les appareils qui ne définissent pas leurs propres plages. Privilégiez la configuration par appareil pour les nouvelles installations.
 
 Modes disponibles :
 
@@ -596,7 +594,7 @@ Avant publication :
 
 1. Vérifier les métadonnées repository, bugs, homepage, author et license.
 2. Exécuter `npm run lint`, `npm run build`, `npm test` et `npm run verify:pack`.
-3. Créer et pousser un tag de release correspondant à `package.json`, par exemple `v0.1.4`.
+3. Créer et pousser un tag de release correspondant à `package.json`.
 4. GitHub Actions publie le package sur npm avec Trusted Publishing.
 
 Pour un paquet scopé, utiliser `npm publish --access=public` lors de la première publication.
@@ -610,7 +608,7 @@ Configurer npm Trusted Publishing pour ce package avec :
 - Allowed actions : `npm publish`
 - Environment name : laisser vide sauf si un environnement de déploiement GitHub est ajouté plus tard.
 
-Le workflow de publication gère aussi les releases automatiques pour les pull requests mergées. Lorsqu’une PR est mergée dans `main`, `.github/workflows/publish.yml` exécute les mêmes validations, incrémente la version patch, crée le tag `vX.Y.Z` correspondant, pousse le commit de release et le tag sur `main`, publie le paquet sur npm, puis crée une GitHub Release marquée comme Latest.
+Le workflow de publication gère aussi les releases automatiques pour les pull requests mergées. Lorsqu’une PR est mergée dans `main`, `.github/workflows/publish.yml` exécute les mêmes validations, incrémente le patch, crée le tag de release correspondant, pousse le commit de release et le tag sur `main`, publie le paquet sur npm, puis crée une GitHub Release marquée comme Latest.
 
 Pour les pull requests ouvertes depuis ce dépôt, le même workflow publie aussi une préversion npm unique avec le dist-tag `beta` après validation. Installer la dernière beta de PR :
 
@@ -618,4 +616,4 @@ Pour les pull requests ouvertes depuis ce dépôt, le même workflow publie auss
 npm install -g homebridge-lametric-time-messenger@beta
 ```
 
-La version beta contient le numéro de PR et les informations du run GitHub Actions, et ne remplace pas la release stable `latest`.
+Le paquet beta contient le numéro de PR et les informations du run GitHub Actions, et ne remplace pas la release stable `latest`.

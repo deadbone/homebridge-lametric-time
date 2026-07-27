@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.8
+
+### Fixed
+
+- Removed hardcoded plugin release numbers from the README.
+
 ## 0.1.4
 
 ### Added
