@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.9
+
+### Changed
+
+- Updated the plugin icon shown on npm and Homebridge UI.
+
 ## 0.1.8
 
 ### Fixed
