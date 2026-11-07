@@ -39,13 +39,15 @@ Homebridge 2 compatibility is based on the official dynamic platform model and a
 
 #### Homebridge UI
 
-After the package is published to npm, install it from the Homebridge UI:
+Install the plugin from Homebridge UI:
 
 1. Open Homebridge UI.
 2. Go to **Plugins**.
 3. Search for `homebridge-lametric-time-messenger`.
 4. Click **Install**.
 5. Restart Homebridge.
+
+To update an existing installation, open the plugin card in **Plugins**, apply the available update, then restart Homebridge.
 
 #### npm
 
@@ -352,13 +354,15 @@ La compatibilité Homebridge 2 repose sur le modèle officiel de plateforme dyna
 
 #### Homebridge UI
 
-Une fois le paquet publié sur npm, installez-le depuis Homebridge UI :
+Installez le plugin depuis Homebridge UI :
 
 1. Ouvrez Homebridge UI.
 2. Allez dans **Plugins**.
 3. Recherchez `homebridge-lametric-time-messenger`.
 4. Cliquez sur **Install**.
 5. Redémarrez Homebridge.
+
+Pour mettre à jour une installation existante, ouvrez la fiche du plugin dans **Plugins**, appliquez la mise à jour disponible, puis redémarrez Homebridge.
 
 #### npm
 

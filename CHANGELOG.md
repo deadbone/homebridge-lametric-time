@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.10
+
+### Changed
+
+- Clarified how to install and update the plugin in Homebridge UI in English and French.
+
 ## 0.1.9
 
 ### Changed
