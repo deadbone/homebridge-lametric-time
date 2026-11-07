@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.11
+
+### Security
+
+- Updated Vitest and its coverage provider to remove the vulnerable Tinypool development dependency (CVE-2026-104848 and CVE-2026-104849).
+
 ## 0.1.10
 
 ### Changed
