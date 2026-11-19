@@ -7,21 +7,9 @@ import {
   LaMetricRateLimitError,
   LaMetricTimeoutError,
 } from './errors.js';
-import type { LaMetricDisplaySettings, LaMetricDisplayUpdate, LaMetricNotificationPayload, LaMetricNotificationResponse } from './types.js';
+import type { LaMetricDisplaySettings, LaMetricDisplayState, LaMetricDisplayUpdate, LaMetricNotificationPayload, LaMetricNotificationResponse } from './types.js';
 
 type DeviceEndpoint = 'notifications' | 'display' | 'device';
-
-interface DisplayStateResponse {
-  readonly brightness?: number;
-  readonly brightness_mode?: string;
-  readonly screensaver?: {
-    readonly enabled?: boolean;
-    readonly modes?: {
-      readonly time_based?: LaMetricDisplaySettings['screensaver']['mode_params'];
-      readonly when_dark?: { readonly enabled?: boolean };
-    };
-  };
-}
 
 export interface LaMetricHttpClientOptions {
   readonly fetchImpl?: typeof fetch;
@@ -59,7 +47,7 @@ export class LaMetricClient {
 
   public async getDisplaySettings(): Promise<LaMetricDisplaySettings> {
     try {
-      const state = await this.request('GET', 'device') as { display?: DisplayStateResponse } | undefined;
+      const state = await this.request('GET', 'device') as { display?: LaMetricDisplayState } | undefined;
       const settings = parseDisplaySettings(state?.display);
       if (settings) {
         return settings;
@@ -69,7 +57,7 @@ export class LaMetricClient {
         throw error;
       }
     }
-    const display = await this.request('GET', 'display') as DisplayStateResponse | undefined;
+    const display = await this.request('GET', 'display') as LaMetricDisplayState | undefined;
     const settings = parseDisplaySettings(display);
     if (!settings) {
       throw new LaMetricError(`[${this.device.name}] The device did not return its screensaver settings`);
@@ -77,10 +65,15 @@ export class LaMetricClient {
     return settings;
   }
 
-  public async setDisplaySettings(settings: LaMetricDisplayUpdate): Promise<void> {
+  public async getDisplayState(): Promise<LaMetricDisplayState | undefined> {
+    const timeoutMs = Math.min(this.device.timeoutMs, 1500);
+    return await this.request('GET', 'display', undefined, timeoutMs) as LaMetricDisplayState | undefined;
+  }
+
+  public async setDisplaySettings(settings: LaMetricDisplayUpdate): Promise<LaMetricDisplayState | undefined> {
     const result = await this.request('PUT', 'display', settings) as {
       errors?: unknown[];
-      success?: { data?: DisplayStateResponse };
+      success?: { data?: LaMetricDisplayState };
     } | undefined;
     const applied = result?.success?.data?.screensaver;
     const expected = settings.screensaver;
@@ -95,6 +88,7 @@ export class LaMetricClient {
         appliedMode.enabled !== expected.mode_params.enabled) {
       throw new LaMetricError(`[${this.device.name}] The device reported ${expected.mode} enabled=${appliedMode.enabled} after requesting enabled=${expected.mode_params.enabled}`);
     }
+    return result?.success?.data;
   }
 
   private async requestWithRetry<T>(operation: () => Promise<T>): Promise<T> {
@@ -121,12 +115,13 @@ export class LaMetricClient {
     method: 'GET' | 'POST' | 'PUT',
     endpoint: DeviceEndpoint,
     payload?: LaMetricNotificationPayload | LaMetricDisplayUpdate,
+    timeoutMs = this.device.timeoutMs,
   ): Promise<unknown> {
     assertSafeHost(this.device.host);
     assertSafeHeaderValue(this.device.apiKey, 'apiKey');
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), this.device.timeoutMs);
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
       const resource = endpoint === 'device' ? '?fields=display' : `/${endpoint}`;
@@ -197,7 +192,7 @@ export class LaMetricClient {
   }
 }
 
-function parseDisplaySettings(display: DisplayStateResponse | undefined): LaMetricDisplaySettings | undefined {
+function parseDisplaySettings(display: LaMetricDisplayState | undefined): LaMetricDisplaySettings | undefined {
   const brightness = display?.brightness;
   const brightnessMode = display?.brightness_mode;
   const screensaver = display?.screensaver;

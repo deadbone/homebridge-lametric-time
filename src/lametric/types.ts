@@ -56,3 +56,16 @@ export interface LaMetricDisplaySettings {
   readonly brightness_mode: 'auto' | 'manual';
   readonly screensaver: LaMetricScreensaverSettings & { readonly whenDarkEnabled?: boolean };
 }
+
+export interface LaMetricDisplayState {
+  readonly on?: boolean;
+  readonly brightness?: number;
+  readonly brightness_mode?: string;
+  readonly screensaver?: {
+    readonly enabled?: boolean;
+    readonly modes?: {
+      readonly time_based?: LaMetricScreensaverSettings['mode_params'];
+      readonly when_dark?: { readonly enabled?: boolean };
+    };
+  };
+}

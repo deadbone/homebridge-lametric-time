@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.16
+
+### Fixed
+
+- Read the LaMetric display state when Apple Home asks for it, so a wake outside the switch appears as on when opening Apple Home.
+- Account for the active UTC screensaver interval and fall back to the last known state if the device does not respond promptly.
+
 ## 0.1.15
 
 ### Fixed

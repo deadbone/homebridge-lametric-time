@@ -86,7 +86,7 @@ The schema can mask the API key with `format: password`. Enable `connectionTestS
 
 Enable **Expose Display Switch** (`displaySwitch`) to add `Display <device name>` in Apple Home. In the LaMetric app, select **Black** under **Settings → Screen Saver → Screen Saver App**. Turning the HomeKit switch off starts the built-in screensaver. Turning it on disables the screensaver so the display wakes, then restores the saved brightness, schedule and mode. The temporary schedule has a one-second gap if left running for a full day.
 
-The switch reports its saved state to Apple Home and contacts the LaMetric only when commanded. The LaMetric firmware controls the device’s Internet access.
+When Apple Home requests the switch state, the plugin reads the LaMetric with a short timeout and falls back to the last known state if the response is unavailable or inconclusive. The LaMetric firmware controls the device’s Internet access.
 
 Detailed configuration documentation is available in the repository wiki.
 
@@ -405,7 +405,7 @@ Le schéma masque la clé API avec `format: password`. Les boutons de test par a
 
 Activez **Expose Display Switch** (`displaySwitch`) pour ajouter `Display <nom de l’appareil>` dans Apple Maison. Dans l’app LaMetric, sélectionnez **Noir** dans **Réglages → Écran de veille → Application**. En position éteinte, l’interrupteur lance l’écran de veille natif. En position allumée, il désactive la veille pour rallumer l’écran, puis restaure la luminosité, les horaires et le mode mémorisés. La programmation temporaire comporte une coupure d’une seconde si la veille dure une journée entière.
 
-L’interrupteur renvoie son état mémorisé à Apple Maison et contacte la LaMetric seulement lorsqu’une commande est envoyée. Les accès Internet de la LaMetric dépendent de son firmware.
+Quand Apple Maison demande l’état de l’interrupteur, le plugin lit la LaMetric avec un délai court. Il utilise le dernier état connu si la réponse est indisponible ou ne permet pas de déterminer l’état. Les accès Internet de la LaMetric dépendent de son firmware.
 
 La documentation détaillée des options de configuration est disponible dans le wiki du dépôt.
 
