@@ -44,10 +44,11 @@ export class DisplaySwitchAccessory {
         const on = this.requestedOn;
         this.requestedOn = undefined;
         try {
-          await this.setDisplayOn(on);
+          await this.setDisplayOn(on, report);
         } catch (error) {
           const reason = error instanceof LaMetricError ? error.message : 'Invalid or missing response from the LaMetric';
-          this.platform.logger.warn('[%s] Could not %s: %s', this.accessory.displayName, on ? 'restore the display' : 'start the screensaver', reason);
+          const action = on ? (this.isOn() ? 'restore the saved display settings' : 'wake the display') : 'start the screensaver';
+          this.platform.logger.warn('[%s] Could not %s: %s', this.accessory.displayName, action, reason);
         }
       }
     } finally {
@@ -56,14 +57,18 @@ export class DisplaySwitchAccessory {
     }
   }
 
-  private async setDisplayOn(on: boolean): Promise<void> {
+  private async setDisplayOn(on: boolean, report: () => void): Promise<void> {
     const context = this.accessory.context;
     if (on) {
       const screensaver = context.displayBeforeStandby?.screensaver;
       const brightness = context.displayBeforeOff ?? context.displayBeforeStandby;
       if (brightness) {
         if (screensaver) {
-          await this.restoreScreensaver(screensaver);
+          await this.client.setDisplaySettings({ screensaver: { enabled: false } });
+          delete context.screensaverActive;
+          this.platform.api.updatePlatformAccessories([this.accessory]);
+          report();
+          await this.restoreScreensaverMode(screensaver);
         }
         await this.client.setDisplaySettings({
           brightness: brightness.brightness,
@@ -99,26 +104,23 @@ export class DisplaySwitchAccessory {
     }
   }
 
-  private async restoreScreensaver(previous: LaMetricDisplaySettings['screensaver']): Promise<void> {
+  private async restoreScreensaverMode(previous: LaMetricDisplaySettings['screensaver']): Promise<void> {
     const { start_time, end_time } = previous.mode_params;
-    const hasSchedule = isTime(start_time) && isTime(end_time);
-    if (hasSchedule) {
+    if (isTime(start_time) && isTime(end_time)) {
+      // Saving the times selects time_based mode even if it was previously inactive.
       await this.client.setDisplaySettings({
-        screensaver: { enabled: previous.enabled, mode: 'time_based', mode_params: previous.mode_params },
+        screensaver: { mode: 'time_based', mode_params: { start_time, end_time } },
       });
     }
 
     if (previous.whenDarkEnabled) {
       await this.client.setDisplaySettings({
-        screensaver: { enabled: previous.enabled, mode: 'when_dark', mode_params: { enabled: true } },
+        screensaver: { mode: 'when_dark', mode_params: { enabled: true } },
       });
-    } else if (!hasSchedule) {
-      // A time-based update requires a complete schedule, even when disabling that mode.
-      await this.client.setDisplaySettings({ screensaver: { enabled: false } });
     }
   }
 }
 
-function isTime(value: string | undefined): boolean {
+function isTime(value: string | undefined): value is string {
   return typeof value === 'string' && /^(?:[01]?\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/u.test(value);
 }

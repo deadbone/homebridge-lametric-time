@@ -85,11 +85,15 @@ export class LaMetricClient {
     const applied = result?.success?.data?.screensaver;
     const expected = settings.screensaver;
     const appliedMode = expected?.mode && applied?.modes?.[expected.mode];
-    if (result?.errors?.length || (expected && (
-      (typeof applied?.enabled === 'boolean' && applied.enabled !== expected.enabled) ||
-      (typeof appliedMode?.enabled === 'boolean' && appliedMode.enabled !== expected.mode_params?.enabled)
-    ))) {
+    if (result?.errors?.length) {
       throw new LaMetricError(`[${this.device.name}] The device refused the display settings`);
+    }
+    if (typeof expected?.enabled === 'boolean' && typeof applied?.enabled === 'boolean' && applied.enabled !== expected.enabled) {
+      throw new LaMetricError(`[${this.device.name}] The device reported screensaver enabled=${applied.enabled} after requesting enabled=${expected.enabled}`);
+    }
+    if (typeof expected?.mode_params?.enabled === 'boolean' && typeof appliedMode?.enabled === 'boolean' &&
+        appliedMode.enabled !== expected.mode_params.enabled) {
+      throw new LaMetricError(`[${this.device.name}] The device reported ${expected.mode} enabled=${appliedMode.enabled} after requesting enabled=${expected.mode_params.enabled}`);
     }
   }
 

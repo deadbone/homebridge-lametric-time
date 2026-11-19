@@ -84,7 +84,7 @@ Sections:
 
 The schema can mask the API key with `format: password`. Enable `connectionTestSwitch` on a device to expose a HomeKit switch named `Test <device name>`. Turning it on sends a critical local test notification to that device only and the switch automatically returns to off.
 
-Enable **Expose Display Switch** (`displaySwitch`) to add `Display <device name>` in Apple Home. In the LaMetric app, select **Black** under **Settings → Screen Saver → Screen Saver App**. Turning the HomeKit switch off starts the built-in screensaver. Turning it on restores the saved brightness and screensaver settings, even after a Homebridge restart. The temporary schedule has a one-second gap if left running for a full day.
+Enable **Expose Display Switch** (`displaySwitch`) to add `Display <device name>` in Apple Home. In the LaMetric app, select **Black** under **Settings → Screen Saver → Screen Saver App**. Turning the HomeKit switch off starts the built-in screensaver. Turning it on disables the screensaver so the display wakes, then restores the saved brightness, schedule and mode. The temporary schedule has a one-second gap if left running for a full day.
 
 The switch reports its saved state to Apple Home and contacts the LaMetric only when commanded. The LaMetric firmware controls the device’s Internet access.
 
@@ -403,7 +403,7 @@ Sections :
 
 Le schéma masque la clé API avec `format: password`. Les boutons de test par appareil ne sont pas inclus, car le formulaire standard Homebridge UI ne fournit pas de flux serveur fiable pour ce type de bouton.
 
-Activez **Expose Display Switch** (`displaySwitch`) pour ajouter `Display <nom de l’appareil>` dans Apple Maison. Dans l’app LaMetric, sélectionnez **Noir** dans **Réglages → Écran de veille → Application**. En position éteinte, l’interrupteur lance l’écran de veille natif. En position allumée, il restaure la luminosité et les réglages de veille enregistrés, même après un redémarrage de Homebridge. La programmation temporaire comporte une coupure d’une seconde si la veille dure une journée entière.
+Activez **Expose Display Switch** (`displaySwitch`) pour ajouter `Display <nom de l’appareil>` dans Apple Maison. Dans l’app LaMetric, sélectionnez **Noir** dans **Réglages → Écran de veille → Application**. En position éteinte, l’interrupteur lance l’écran de veille natif. En position allumée, il désactive la veille pour rallumer l’écran, puis restaure la luminosité, les horaires et le mode mémorisés. La programmation temporaire comporte une coupure d’une seconde si la veille dure une journée entière.
 
 L’interrupteur renvoie son état mémorisé à Apple Maison et contacte la LaMetric seulement lorsqu’une commande est envoyée. Les accès Internet de la LaMetric dépendent de son firmware.
 

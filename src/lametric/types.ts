@@ -42,10 +42,13 @@ export interface LaMetricScreensaverSettings {
 export interface LaMetricDisplayUpdate {
   readonly brightness_mode?: 'auto' | 'manual';
   readonly brightness?: number;
-  readonly screensaver?: { readonly enabled: boolean } & (
-    | { readonly mode?: never; readonly mode_params?: never }
-    | { readonly mode: 'time_based' | 'when_dark'; readonly mode_params: LaMetricScreensaverSettings['mode_params'] }
-  );
+  readonly screensaver?:
+    | { readonly enabled: boolean; readonly mode?: never; readonly mode_params?: never }
+    | {
+      readonly enabled?: boolean;
+      readonly mode: 'time_based' | 'when_dark';
+      readonly mode_params: Partial<LaMetricScreensaverSettings['mode_params']>;
+    };
 }
 
 export interface LaMetricDisplaySettings {

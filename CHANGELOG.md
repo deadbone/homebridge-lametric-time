@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.15
+
+### Fixed
+
+- Wake the display by disabling the screensaver directly. Restore saved brightness, schedules and mode without re-enabling the screensaver.
+- Report the switch as on once the device confirms wake, even if a saved setting cannot be restored.
+
 ## 0.1.14
 
 ### Fixed
