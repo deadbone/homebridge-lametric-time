@@ -62,16 +62,13 @@ export class DisplaySwitchAccessory {
       const screensaver = context.displayBeforeStandby?.screensaver;
       const brightness = context.displayBeforeOff ?? context.displayBeforeStandby;
       if (brightness) {
+        if (screensaver) {
+          await this.restoreScreensaver(screensaver);
+        }
         await this.client.setDisplaySettings({
           brightness: brightness.brightness,
           brightness_mode: brightness.brightness_mode,
-          ...(screensaver && { screensaver: { enabled: screensaver.enabled, mode: 'time_based', mode_params: screensaver.mode_params } }),
         });
-        if (screensaver?.whenDarkEnabled) {
-          await this.client.setDisplaySettings({
-            screensaver: { enabled: screensaver.enabled, mode: 'when_dark', mode_params: { enabled: true } },
-          });
-        }
         delete context.displayBeforeStandby;
         delete context.displayBeforeOff;
         delete context.screensaverActive;
@@ -101,4 +98,27 @@ export class DisplaySwitchAccessory {
       this.platform.api.updatePlatformAccessories([this.accessory]);
     }
   }
+
+  private async restoreScreensaver(previous: LaMetricDisplaySettings['screensaver']): Promise<void> {
+    const { start_time, end_time } = previous.mode_params;
+    const hasSchedule = isTime(start_time) && isTime(end_time);
+    if (hasSchedule) {
+      await this.client.setDisplaySettings({
+        screensaver: { enabled: previous.enabled, mode: 'time_based', mode_params: previous.mode_params },
+      });
+    }
+
+    if (previous.whenDarkEnabled) {
+      await this.client.setDisplaySettings({
+        screensaver: { enabled: previous.enabled, mode: 'when_dark', mode_params: { enabled: true } },
+      });
+    } else if (!hasSchedule) {
+      // A time-based update requires a complete schedule, even when disabling that mode.
+      await this.client.setDisplaySettings({ screensaver: { enabled: false } });
+    }
+  }
+}
+
+function isTime(value: string | undefined): boolean {
+  return typeof value === 'string' && /^(?:[01]?\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/u.test(value);
 }

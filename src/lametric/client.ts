@@ -1,5 +1,5 @@
 import type { NormalizedDeviceConfig } from '../config/types.js';
-import { assertSafeHeaderValue, assertSafeHost } from '../utils/security.js';
+import { assertSafeHeaderValue, assertSafeHost, normalizeLaMetricText, redactSecrets } from '../utils/security.js';
 import {
   LaMetricAuthenticationError,
   LaMetricError,
@@ -84,10 +84,10 @@ export class LaMetricClient {
     } | undefined;
     const applied = result?.success?.data?.screensaver;
     const expected = settings.screensaver;
-    const appliedMode = expected && applied?.modes?.[expected.mode];
+    const appliedMode = expected?.mode && applied?.modes?.[expected.mode];
     if (result?.errors?.length || (expected && (
       (typeof applied?.enabled === 'boolean' && applied.enabled !== expected.enabled) ||
-      (typeof appliedMode?.enabled === 'boolean' && appliedMode.enabled !== expected.mode_params.enabled)
+      (typeof appliedMode?.enabled === 'boolean' && appliedMode.enabled !== expected.mode_params?.enabled)
     ))) {
       throw new LaMetricError(`[${this.device.name}] The device refused the display settings`);
     }
@@ -158,7 +158,7 @@ export class LaMetricClient {
   }
 
   private async mapHttpError(response: Response, endpoint: DeviceEndpoint): Promise<LaMetricError> {
-    const responseText = endpoint === 'notifications' ? await safeResponseText(response) : '';
+    const responseText = endpoint === 'notifications' ? await safeResponseText(response) : await this.displayErrorDetails(response);
     const suffix = responseText ? `: ${responseText}` : '';
     switch (response.status) {
       case 401:
@@ -173,6 +173,23 @@ export class LaMetricClient {
         }
         return new LaMetricError(`[${this.device.name}] LaMetric returned HTTP ${response.status}${suffix}`, response.status, false);
     }
+  }
+
+  private async displayErrorDetails(response: Response): Promise<string> {
+    if (response.status !== 400) {
+      return '';
+    }
+    try {
+      const details = await response.json() as { errors?: readonly { message?: string }[] };
+      const message = details?.errors?.find((error) => typeof error?.message === 'string')?.message;
+      if (message) {
+        const authorizationToken = Buffer.from(`dev:${this.device.apiKey}`, 'utf8').toString('base64');
+        return normalizeLaMetricText(redactSecrets(message, [this.device.apiKey, authorizationToken]));
+      }
+    } catch {
+      // Preserve the HTTP status if the error body is missing or is not valid JSON.
+    }
+    return '';
   }
 }
 

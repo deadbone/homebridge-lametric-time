@@ -2,6 +2,13 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.14
+
+### Fixed
+
+- Restore the LaMetric display without sending a time-based screensaver mode without both of its times, including for standby state saved by 0.1.13.
+- Restore brightness separately and include safe LaMetric validation details in display error logs.
+
 ## 0.1.13
 
 ### Fixed

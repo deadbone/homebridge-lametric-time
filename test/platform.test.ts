@@ -126,6 +126,7 @@ describe('LaMetricTimePlatform display switches', () => {
       .mockResolvedValueOnce(response(200, { display: initialDisplay }))
       .mockResolvedValueOnce(response(200))
       .mockResolvedValueOnce(response(200))
+      .mockResolvedValueOnce(response(200))
       .mockResolvedValueOnce(response(200));
     vi.stubGlobal('fetch', fetchImpl);
     const mocks = createHomebridgeMocks();
@@ -170,15 +171,50 @@ describe('LaMetricTimePlatform display switches', () => {
     await vi.waitFor(() => expect(restored?.updateValue).toHaveBeenCalledWith(true));
     expect(restored?.onGetHandler?.()).toBe(true);
     expect(cached.context.displayBeforeStandby).toBeUndefined();
-    expect(fetchImpl).toHaveBeenCalledTimes(4);
+    expect(fetchImpl).toHaveBeenCalledTimes(5);
     expect(JSON.parse(String(fetchImpl.mock.calls[2]?.[1]?.body))).toEqual({
-      brightness: 47,
-      brightness_mode: 'manual',
       screensaver: { enabled: true, mode: 'time_based', mode_params: originalMode },
     });
     expect(JSON.parse(String(fetchImpl.mock.calls[3]?.[1]?.body))).toEqual({
       screensaver: { enabled: true, mode: 'when_dark', mode_params: { enabled: true } },
     });
+    expect(JSON.parse(String(fetchImpl.mock.calls[4]?.[1]?.body))).toEqual({ brightness: 47, brightness_mode: 'manual' });
+  });
+
+  it.each([
+    {
+      name: 'an active darkness mode with no schedule',
+      previous: { enabled: true, mode_params: { enabled: false }, whenDarkEnabled: true },
+      restored: { enabled: true, mode: 'when_dark', mode_params: { enabled: true } },
+    },
+    {
+      name: 'a disabled screensaver with incomplete times',
+      previous: { enabled: false, mode_params: { enabled: false, end_time: '06:00:00' }, whenDarkEnabled: false },
+      restored: { enabled: false },
+    },
+  ])('wakes a device with $name saved by 0.1.13', async ({ previous, restored }) => {
+    const fetchImpl = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(response(200, { success: { data: { screensaver: { enabled: restored.enabled } } } }))
+      .mockResolvedValueOnce(response(200));
+    vi.stubGlobal('fetch', fetchImpl);
+    const mocks = createHomebridgeMocks();
+    const cached = new mocks.PlatformAccessory('Display LaMetric Salon', 'uuid:homebridge-lametric-time-messenger:display:salon');
+    cached.context.screensaverActive = true;
+    cached.context.displayBeforeStandby = { brightness: 40, brightness_mode: 'manual', screensaver: previous };
+    const platform = new LaMetricTimePlatform(mocks.log as never, displayConfig as never, mocks.api as never);
+    platform.configureAccessory(cached as never);
+    mocks.eventHandlers.get('didFinishLaunching')?.();
+
+    const characteristic = cached.getService('Switch')?.characteristic;
+    expect(characteristic?.onGetHandler?.()).toBe(false);
+    expect(fetchImpl).not.toHaveBeenCalled();
+    characteristic?.onSetHandler?.(true);
+    await vi.waitFor(() => expect(characteristic?.updateValue).toHaveBeenCalledWith(true));
+    expect(fetchImpl.mock.calls.map(([, options]) => [options?.method, JSON.parse(String(options?.body))])).toEqual([
+      ['PUT', { screensaver: restored }],
+      ['PUT', { brightness: 40, brightness_mode: 'manual' }],
+    ]);
+    expect(cached.context.displayBeforeStandby).toBeUndefined();
   });
 
   it('keeps HomeKit responsive when display calls time out and logs the failed command once', async () => {

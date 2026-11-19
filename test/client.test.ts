@@ -47,6 +47,17 @@ describe('LaMetricClient', () => {
     await expect(client.sendNotification(payload)).rejects.toThrow(/invalid payload/u);
   });
 
+  it('includes display validation details while redacting credentials', async () => {
+    const token = Buffer.from('dev:SECRET').toString('base64');
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(response(400, {
+      errors: [{ message: `Both times are required for SECRET ${token}` }],
+    }));
+    const client = new LaMetricClient(sampleConfig.devices[0], { fetchImpl });
+    await expect(client.setDisplaySettings({ screensaver: { enabled: false } })).rejects.toThrow(
+      'HTTP 400: Both times are required for [REDACTED] [REDACTED]',
+    );
+  });
+
   it('maps network timeout', async () => {
     const fetchImpl = vi.fn<typeof fetch>((_input, init) => {
       init?.signal?.dispatchEvent(new Event('abort'));
