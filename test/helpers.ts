@@ -81,12 +81,13 @@ export function createHomebridgeMocks() {
 
   class FakeCharacteristic {
     public onGetHandler: (() => boolean | Promise<boolean>) | undefined;
-    public onSetHandler: ((value: boolean) => Promise<void>) | undefined;
+    public onSetHandler: ((value: boolean) => void | Promise<void>) | undefined;
+    public updateValue = vi.fn();
     public onGet(handler: () => boolean | Promise<boolean>): this {
       this.onGetHandler = handler;
       return this;
     }
-    public onSet(handler: (value: boolean) => Promise<void>): this {
+    public onSet(handler: (value: boolean) => void | Promise<void>): this {
       this.onSetHandler = handler;
       return this;
     }

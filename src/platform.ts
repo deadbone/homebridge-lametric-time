@@ -269,7 +269,7 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
     const existingAccessory = this.accessories.get(uuid);
     const accessory = existingAccessory ?? new this.api.platformAccessory(displayName, uuid);
     accessory.displayName = displayName;
-    new DisplaySwitchAccessory(this.api, accessory, client);
+    new DisplaySwitchAccessory(this, accessory, client);
     if (existingAccessory) {
       this.api.updatePlatformAccessories([accessory]);
     } else {

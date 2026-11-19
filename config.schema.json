@@ -178,7 +178,7 @@
               "title": "Expose Display Switch",
               "type": "boolean",
               "default": false,
-              "description": "Adds a HomeKit switch that sets this LaMetric's display brightness to zero when off and restores its previous brightness settings when on."
+              "description": "Adds a HomeKit switch for the built-in screensaver. Select Black as the screensaver in the LaMetric app. Turning the switch on restores the previous display settings."
             },
             "silentHours": {
               "title": "Silent Hours",

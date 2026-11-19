@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.13
+
+### Fixed
+
+- Use the built-in LaMetric screensaver for the Apple Home display switch and restore the previous settings on wake.
+- Answer HomeKit reads from cached state and apply writes in the background to avoid slow or timed-out characteristic handlers.
+- Declare and test Node.js 26 support for Homebridge 2.5 and later.
+
 ## 0.1.12
 
 ### Added

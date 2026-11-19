@@ -28,7 +28,7 @@ HTTPS on port `4343` can be configured, but the plugin does not disable TLS veri
 ### Compatibility
 
 - Homebridge: `^1.6.0 || ^2.0.0`
-- Node.js: `^22.12.0 || ^24.0.0`
+- Node.js `^22.12.0 || ^24.0.0 || ^26.0.0`. Node.js 26 requires Homebridge 2.5.0 or later.
 - LaMetric: LaMetric TIME V2 / 2022+ devices only
 - Plugin type: dynamic platform
 - Module format: ESM
@@ -84,7 +84,9 @@ Sections:
 
 The schema can mask the API key with `format: password`. Enable `connectionTestSwitch` on a device to expose a HomeKit switch named `Test <device name>`. Turning it on sends a critical local test notification to that device only and the switch automatically returns to off.
 
-Enable **Expose Display Switch** (`displaySwitch`) on a device to add a HomeKit switch named `Display <device name>`. Turning it off sets manual brightness to `0` while the device stays on. Turning it back on restores the previous brightness and mode, even after Homebridge restarts. If no previous setting is saved, it uses automatic brightness. Whether `0` produces a fully black screen depends on the device.
+Enable **Expose Display Switch** (`displaySwitch`) to add `Display <device name>` in Apple Home. In the LaMetric app, select **Black** under **Settings → Screen Saver → Screen Saver App**. Turning the HomeKit switch off starts the built-in screensaver. Turning it on restores the saved brightness and screensaver settings, even after a Homebridge restart. The temporary schedule has a one-second gap if left running for a full day.
+
+The switch reports its saved state to Apple Home and contacts the LaMetric only when commanded. The LaMetric firmware controls the device’s Internet access.
 
 Detailed configuration documentation is available in the repository wiki.
 
@@ -345,7 +347,7 @@ HTTPS sur le port `4343` peut être configuré, mais le plugin ne désactive pas
 ### Compatibilité
 
 - Homebridge : `^1.6.0 || ^2.0.0`
-- Node.js : `^22.12.0 || ^24.0.0`
+- Node.js `^22.12.0 || ^24.0.0 || ^26.0.0`. Node.js 26 nécessite Homebridge 2.5.0 ou une version ultérieure.
 - LaMetric : appareils LaMetric TIME V2 / 2022+ uniquement
 - Type de plugin : plateforme dynamique
 - Format de module : ESM
@@ -401,7 +403,9 @@ Sections :
 
 Le schéma masque la clé API avec `format: password`. Les boutons de test par appareil ne sont pas inclus, car le formulaire standard Homebridge UI ne fournit pas de flux serveur fiable pour ce type de bouton.
 
-Activez **Expose Display Switch** (`displaySwitch`) sur un appareil pour ajouter l’interrupteur `Display <nom de l’appareil>` dans Apple Maison. En position éteinte, il règle la luminosité manuelle sur `0` et laisse la LaMetric allumée. En position allumée, il restaure la luminosité et le mode précédents, même après un redémarrage de Homebridge. En l’absence de réglage mémorisé, il rétablit la luminosité automatique. Le rendu d’un écran entièrement noir à `0` dépend de l’appareil.
+Activez **Expose Display Switch** (`displaySwitch`) pour ajouter `Display <nom de l’appareil>` dans Apple Maison. Dans l’app LaMetric, sélectionnez **Noir** dans **Réglages → Écran de veille → Application**. En position éteinte, l’interrupteur lance l’écran de veille natif. En position allumée, il restaure la luminosité et les réglages de veille enregistrés, même après un redémarrage de Homebridge. La programmation temporaire comporte une coupure d’une seconde si la veille dure une journée entière.
+
+L’interrupteur renvoie son état mémorisé à Apple Maison et contacte la LaMetric seulement lorsqu’une commande est envoyée. Les accès Internet de la LaMetric dépendent de son firmware.
 
 La documentation détaillée des options de configuration est disponible dans le wiki du dépôt.
 

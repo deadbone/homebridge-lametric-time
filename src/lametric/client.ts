@@ -9,7 +9,19 @@ import {
 } from './errors.js';
 import type { LaMetricDisplaySettings, LaMetricDisplayUpdate, LaMetricNotificationPayload, LaMetricNotificationResponse } from './types.js';
 
-type DeviceEndpoint = 'notifications' | 'display';
+type DeviceEndpoint = 'notifications' | 'display' | 'device';
+
+interface DisplayStateResponse {
+  readonly brightness?: number;
+  readonly brightness_mode?: string;
+  readonly screensaver?: {
+    readonly enabled?: boolean;
+    readonly modes?: {
+      readonly time_based?: LaMetricDisplaySettings['screensaver']['mode_params'];
+      readonly when_dark?: { readonly enabled?: boolean };
+    };
+  };
+}
 
 export interface LaMetricHttpClientOptions {
   readonly fetchImpl?: typeof fetch;
@@ -46,18 +58,39 @@ export class LaMetricClient {
   }
 
   public async getDisplaySettings(): Promise<LaMetricDisplaySettings> {
-    const result = await this.requestWithRetry(() => this.request('GET', 'display')) as Partial<LaMetricDisplaySettings> | undefined;
-    const brightness = result?.brightness;
-    const mode = result?.brightness_mode;
-    if (typeof brightness !== 'number' || !Number.isInteger(brightness) || brightness < 0 || brightness > 100 ||
-        (mode !== 'auto' && mode !== 'manual')) {
-      throw new LaMetricError(`[${this.device.name}] Invalid display settings returned by LaMetric`);
+    try {
+      const state = await this.request('GET', 'device') as { display?: DisplayStateResponse } | undefined;
+      const settings = parseDisplaySettings(state?.display);
+      if (settings) {
+        return settings;
+      }
+    } catch (error) {
+      if (error instanceof LaMetricAuthenticationError) {
+        throw error;
+      }
     }
-    return { brightness, brightness_mode: mode };
+    const display = await this.request('GET', 'display') as DisplayStateResponse | undefined;
+    const settings = parseDisplaySettings(display);
+    if (!settings) {
+      throw new LaMetricError(`[${this.device.name}] The device did not return its screensaver settings`);
+    }
+    return settings;
   }
 
   public async setDisplaySettings(settings: LaMetricDisplayUpdate): Promise<void> {
-    await this.requestWithRetry(() => this.request('PUT', 'display', settings));
+    const result = await this.request('PUT', 'display', settings) as {
+      errors?: unknown[];
+      success?: { data?: DisplayStateResponse };
+    } | undefined;
+    const applied = result?.success?.data?.screensaver;
+    const expected = settings.screensaver;
+    const appliedMode = expected && applied?.modes?.[expected.mode];
+    if (result?.errors?.length || (expected && (
+      (typeof applied?.enabled === 'boolean' && applied.enabled !== expected.enabled) ||
+      (typeof appliedMode?.enabled === 'boolean' && appliedMode.enabled !== expected.mode_params.enabled)
+    ))) {
+      throw new LaMetricError(`[${this.device.name}] The device refused the display settings`);
+    }
   }
 
   private async requestWithRetry<T>(operation: () => Promise<T>): Promise<T> {
@@ -92,7 +125,8 @@ export class LaMetricClient {
     const timeout = setTimeout(() => controller.abort(), this.device.timeoutMs);
 
     try {
-      const response = await this.fetchImpl(`${this.device.protocol}://${this.device.host}:${this.device.port}/api/v2/device/${endpoint}`, {
+      const resource = endpoint === 'device' ? '?fields=display' : `/${endpoint}`;
+      const response = await this.fetchImpl(`${this.device.protocol}://${this.device.host}:${this.device.port}/api/v2/device${resource}`, {
         method,
         headers: {
           Accept: 'application/json',
@@ -115,7 +149,7 @@ export class LaMetricClient {
       return text ? JSON.parse(text) : undefined;
     } catch (error) {
       if (isAbortError(error)) {
-        throw new LaMetricTimeoutError();
+        throw new LaMetricTimeoutError(endpoint === 'notifications' ? undefined : `Timed out while contacting LaMetric device (${method} ${endpoint})`);
       }
       throw error;
     } finally {
@@ -124,7 +158,7 @@ export class LaMetricClient {
   }
 
   private async mapHttpError(response: Response, endpoint: DeviceEndpoint): Promise<LaMetricError> {
-    const responseText = await safeResponseText(response);
+    const responseText = endpoint === 'notifications' ? await safeResponseText(response) : '';
     const suffix = responseText ? `: ${responseText}` : '';
     switch (response.status) {
       case 401:
@@ -140,6 +174,31 @@ export class LaMetricClient {
         return new LaMetricError(`[${this.device.name}] LaMetric returned HTTP ${response.status}${suffix}`, response.status, false);
     }
   }
+}
+
+function parseDisplaySettings(display: DisplayStateResponse | undefined): LaMetricDisplaySettings | undefined {
+  const brightness = display?.brightness;
+  const brightnessMode = display?.brightness_mode;
+  const screensaver = display?.screensaver;
+  const schedule = screensaver?.modes?.time_based;
+  if (typeof brightness !== 'number' || !Number.isInteger(brightness) || brightness < 0 || brightness > 100 ||
+      (brightnessMode !== 'auto' && brightnessMode !== 'manual') || typeof screensaver?.enabled !== 'boolean' ||
+      typeof schedule?.enabled !== 'boolean') {
+    return undefined;
+  }
+  return {
+    brightness,
+    brightness_mode: brightnessMode,
+    screensaver: {
+      enabled: screensaver.enabled,
+      mode_params: {
+        enabled: schedule.enabled,
+        ...(typeof schedule.start_time === 'string' && { start_time: schedule.start_time }),
+        ...(typeof schedule.end_time === 'string' && { end_time: schedule.end_time }),
+      },
+      ...(typeof screensaver.modes?.when_dark?.enabled === 'boolean' && { whenDarkEnabled: screensaver.modes.when_dark.enabled }),
+    },
+  };
 }
 
 async function safeResponseText(response: Response): Promise<string> {

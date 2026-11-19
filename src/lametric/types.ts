@@ -30,11 +30,23 @@ export interface LaMetricNotificationResponse {
   readonly success?: boolean;
 }
 
-export interface LaMetricDisplayUpdate {
-  readonly brightness_mode: 'auto' | 'manual';
-  readonly brightness?: number;
+export interface LaMetricScreensaverSettings {
+  readonly enabled: boolean;
+  readonly mode_params: {
+    readonly enabled: boolean;
+    readonly start_time?: string;
+    readonly end_time?: string;
+  };
 }
 
-export interface LaMetricDisplaySettings extends LaMetricDisplayUpdate {
+export interface LaMetricDisplayUpdate {
+  readonly brightness_mode?: 'auto' | 'manual';
+  readonly brightness?: number;
+  readonly screensaver?: LaMetricScreensaverSettings & { readonly mode: 'time_based' | 'when_dark' };
+}
+
+export interface LaMetricDisplaySettings {
   readonly brightness: number;
+  readonly brightness_mode: 'auto' | 'manual';
+  readonly screensaver: LaMetricScreensaverSettings & { readonly whenDarkEnabled?: boolean };
 }
