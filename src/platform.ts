@@ -5,6 +5,7 @@ import { LaMetricClient } from './lametric/client.js';
 import { NotificationBuilder } from './lametric/notification-builder.js';
 import { MessageAccessory } from './accessories/message-accessory.js';
 import { ConnectionTestAccessory } from './accessories/connection-test-accessory.js';
+import { DisplaySwitchAccessory } from './accessories/display-switch.js';
 import { QueueManager } from './services/queue.js';
 import { RateLimiter } from './services/rate-limiter.js';
 import { SilentHours } from './services/silent-hours.js';
@@ -199,6 +200,15 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
       this.registerOrRestoreConnectionTestAccessory(uuid, `Test ${sanitizeHomeKitName(device.name)}`, device.id);
     }
 
+    for (const device of this.configData.devices.filter((item) => item.displaySwitch)) {
+      const client = this.clients.get(device.id);
+      if (client) {
+        const uuid = this.api.hap.uuid.generate(`${ACCESSORY_UUID_NAMESPACE}:display:${device.id}`);
+        expectedUUIDs.add(uuid);
+        this.registerOrRestoreDisplaySwitch(uuid, `Display ${sanitizeHomeKitName(device.name)}`, client);
+      }
+    }
+
     for (const [uuid, accessory] of this.accessories) {
       if (!expectedUUIDs.has(uuid)) {
         this.logger.info('Removing stale accessory from cache: %s', accessory.displayName);
@@ -253,6 +263,19 @@ export class LaMetricTimePlatform implements DynamicPlatformPlugin {
     new ConnectionTestAccessory(this, accessory, deviceId);
     this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
     this.accessories.set(uuid, accessory);
+  }
+
+  private registerOrRestoreDisplaySwitch(uuid: string, displayName: string, client: LaMetricClient): void {
+    const existingAccessory = this.accessories.get(uuid);
+    const accessory = existingAccessory ?? new this.api.platformAccessory(displayName, uuid);
+    accessory.displayName = displayName;
+    new DisplaySwitchAccessory(this.api, accessory, client);
+    if (existingAccessory) {
+      this.api.updatePlatformAccessories([accessory]);
+    } else {
+      this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
+      this.accessories.set(uuid, accessory);
+    }
   }
 
   private getDevice(deviceId: string): NormalizedDeviceConfig | undefined {

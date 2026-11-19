@@ -42,6 +42,7 @@ export const sampleConfig: NormalizedPlatformConfig = {
       retryCount: 2,
       retryBackoffMs: 0,
       connectionTestSwitch: false,
+      displaySwitch: false,
       silentHours: [],
     },
   ],
@@ -79,8 +80,10 @@ export function createHomebridgeMocks() {
   }
 
   class FakeCharacteristic {
+    public onGetHandler: (() => boolean | Promise<boolean>) | undefined;
     public onSetHandler: ((value: boolean) => Promise<void>) | undefined;
-    public onGet(): this {
+    public onGet(handler: () => boolean | Promise<boolean>): this {
+      this.onGetHandler = handler;
       return this;
     }
     public onSet(handler: (value: boolean) => Promise<void>): this {

@@ -174,6 +174,7 @@ function normalizeDevices(
       retryCount: boundedInteger(device.retryCount, DEFAULTS.retryCount, 0, 5, `${label}.retryCount`, issues),
       retryBackoffMs: boundedInteger(device.retryBackoffMs, DEFAULTS.retryBackoffMs, 0, 30000, `${label}.retryBackoffMs`, issues),
       connectionTestSwitch: optionalBoolean(device.connectionTestSwitch, DEFAULTS.connectionTestSwitch, `${label}.connectionTestSwitch`, issues),
+      displaySwitch: optionalBoolean(device.displaySwitch, DEFAULTS.displaySwitch, `${label}.displaySwitch`, issues),
       silentHours:
         device.silentHours === undefined
           ? globalSilentHours

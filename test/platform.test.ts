@@ -1,6 +1,7 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { LaMetricTimePlatform } from '../src/platform.js';
-import { createHomebridgeMocks } from './helpers.js';
+import type { LaMetricDisplaySettings } from '../src/lametric/types.js';
+import { createHomebridgeMocks, response } from './helpers.js';
 
 describe('LaMetricTimePlatform accessories', () => {
   it('restores cached accessories without duplicating them', () => {
@@ -101,6 +102,89 @@ describe('LaMetricTimePlatform accessories', () => {
       'LaMetric Salon',
       'info',
     );
+  });
+});
+
+describe('LaMetricTimePlatform display switches', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('controls the selected device and restores its automatic brightness after a restart', async () => {
+    const settingsBeforeOff: LaMetricDisplaySettings = { brightness: 47, brightness_mode: 'auto' };
+    let settings = settingsBeforeOff;
+    const fetchImpl = vi.fn<typeof fetch>(async (_url, options) => {
+      if (options?.method === 'PUT') {
+        settings = JSON.parse(String(options.body)) as LaMetricDisplaySettings;
+        return response(200, { success: { data: settings, path: '/api/v2/device/display' } });
+      }
+      return response(200, settings);
+    });
+    vi.stubGlobal('fetch', fetchImpl);
+    const displayConfig = config({
+      devices: [
+        { id: 'salon', name: 'LaMetric Salon', host: '192.168.1.50', apiKey: 'SECRET', displaySwitch: true },
+        { id: 'bureau', name: 'LaMetric Bureau', host: '192.168.1.51', apiKey: 'SECRET' },
+      ],
+      messages: [],
+    });
+    const mocks = createHomebridgeMocks();
+    new LaMetricTimePlatform(mocks.log as never, displayConfig as never, mocks.api as never);
+    mocks.eventHandlers.get('didFinishLaunching')?.();
+
+    expect(mocks.registered).toHaveLength(1);
+    const accessory = mocks.registered[0] as InstanceType<typeof mocks.PlatformAccessory>;
+    expect(accessory.displayName).toBe('Display LaMetric Salon');
+    const characteristic = accessory.getService('Switch')?.characteristic;
+    expect(await characteristic?.onGetHandler?.()).toBe(true);
+    await Promise.all([characteristic?.onSetHandler?.(false), characteristic?.onSetHandler?.(false)]);
+    expect(settings).toEqual({ brightness: 0, brightness_mode: 'manual' });
+    expect(await characteristic?.onGetHandler?.()).toBe(false);
+    expect(fetchImpl.mock.calls.filter(([, options]) => options?.method === 'PUT')).toHaveLength(1);
+    expect(accessory.context.displayBeforeOff).toEqual(settingsBeforeOff);
+    expect(mocks.api.updatePlatformAccessories).toHaveBeenCalledWith([accessory]);
+
+    const restarted = createHomebridgeMocks();
+    const cached = new restarted.PlatformAccessory(accessory.displayName, accessory.UUID);
+    cached.context = structuredClone(accessory.context);
+    const platform = new LaMetricTimePlatform(restarted.log as never, displayConfig as never, restarted.api as never);
+    platform.configureAccessory(cached as never);
+    restarted.eventHandlers.get('didFinishLaunching')?.();
+    expect(restarted.registered).toHaveLength(0);
+
+    const restored = cached.getService('Switch')?.characteristic;
+    expect(await restored?.onGetHandler?.()).toBe(false);
+    await restored?.onSetHandler?.(true);
+    expect(settings).toEqual(settingsBeforeOff);
+    expect(await restored?.onGetHandler?.()).toBe(true);
+    expect(cached.context.displayBeforeOff).toBeUndefined();
+    expect(fetchImpl.mock.calls.map(([url]) => url)).toEqual(
+      Array.from({ length: fetchImpl.mock.calls.length }, () => 'http://192.168.1.50:8080/api/v2/device/display'),
+    );
+  });
+
+  it('retains the manual brightness when the device applies the write before it times out', async () => {
+    const fetchImpl = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(response(200, { brightness: 30, brightness_mode: 'manual' }))
+      .mockRejectedValueOnce(new DOMException('aborted', 'AbortError'))
+      .mockResolvedValueOnce(response(200, { brightness: 0, brightness_mode: 'manual' }))
+      .mockResolvedValueOnce(response(200));
+    vi.stubGlobal('fetch', fetchImpl);
+    const mocks = createHomebridgeMocks();
+    const displayConfig = config({
+      devices: [{ id: 'salon', name: 'LaMetric Salon', host: '192.168.1.50', apiKey: 'SECRET', retryCount: 0, displaySwitch: true }],
+      messages: [],
+    });
+    new LaMetricTimePlatform(mocks.log as never, displayConfig as never, mocks.api as never);
+    mocks.eventHandlers.get('didFinishLaunching')?.();
+
+    const accessory = mocks.registered[0] as InstanceType<typeof mocks.PlatformAccessory>;
+    const characteristic = accessory.getService('Switch')?.characteristic;
+    await expect(characteristic?.onSetHandler?.(false)).rejects.toThrow(/timed out/iu);
+    await characteristic?.onSetHandler?.(true);
+    expect(fetchImpl).toHaveBeenLastCalledWith(
+      'http://192.168.1.50:8080/api/v2/device/display',
+      expect.objectContaining({ method: 'PUT', body: JSON.stringify({ brightness: 30, brightness_mode: 'manual' }) }),
+    );
+    expect(accessory.context.displayBeforeOff).toBeUndefined();
   });
 });
 

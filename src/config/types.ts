@@ -21,6 +21,7 @@ export interface LaMetricDeviceConfig {
   readonly retryCount?: number;
   readonly retryBackoffMs?: number;
   readonly connectionTestSwitch?: boolean;
+  readonly displaySwitch?: boolean;
   readonly silentHours?: readonly SilentHoursConfig[];
 }
 

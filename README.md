@@ -79,10 +79,12 @@ The plugin ships a `config.schema.json`, so Homebridge UI can render the configu
 Sections:
 
 - General settings: debug logging, queue size, duplicate behavior, global delay, optional test switch.
-- LaMetric TIME V2 devices: internal ID, display name, host, protocol, port, API key, timeout, retries, optional per-device connection test switch, optional silent hours.
+- LaMetric TIME V2 devices: internal ID, display name, host, protocol, port, API key, timeout, retries, optional connection test and display switches, optional silent hours.
 - Messages: internal ID, name, target devices, HomeKit switch exposure, auto-reset, cooldown, priority, icon type, cycles, frames, optional sound.
 
 The schema can mask the API key with `format: password`. Enable `connectionTestSwitch` on a device to expose a HomeKit switch named `Test <device name>`. Turning it on sends a critical local test notification to that device only and the switch automatically returns to off.
+
+Enable **Expose Display Switch** (`displaySwitch`) on a device to add a HomeKit switch named `Display <device name>`. Turning it off sets manual brightness to `0` while the device stays on. Turning it back on restores the previous brightness and mode, even after Homebridge restarts. If no previous setting is saved, it uses automatic brightness. Whether `0` produces a fully black screen depends on the device.
 
 Detailed configuration documentation is available in the repository wiki.
 
@@ -394,10 +396,12 @@ Le plugin fournit un fichier `config.schema.json`, ce qui permet à Homebridge U
 Sections :
 
 - Réglages généraux : logs de debug, taille de file, comportement des doublons, délai global, switch de test optionnel.
-- Appareils LaMetric TIME V2 : identifiant interne, nom affiché, hôte, protocole, port, clé API, délai d’attente, tentatives, switch de test optionnel, horaires silencieux optionnels.
+- Appareils LaMetric TIME V2 : identifiant interne, nom affiché, hôte, protocole, port, clé API, délai d’attente, tentatives, interrupteurs de test et d’affichage optionnels, horaires silencieux optionnels.
 - Messages : identifiant interne, nom, appareils cibles, exposition du switch HomeKit, réinitialisation automatique, cooldown, priorité, type d’icône, cycles, frames, son optionnel.
 
 Le schéma masque la clé API avec `format: password`. Les boutons de test par appareil ne sont pas inclus, car le formulaire standard Homebridge UI ne fournit pas de flux serveur fiable pour ce type de bouton.
+
+Activez **Expose Display Switch** (`displaySwitch`) sur un appareil pour ajouter l’interrupteur `Display <nom de l’appareil>` dans Apple Maison. En position éteinte, il règle la luminosité manuelle sur `0` et laisse la LaMetric allumée. En position allumée, il restaure la luminosité et le mode précédents, même après un redémarrage de Homebridge. En l’absence de réglage mémorisé, il rétablit la luminosité automatique. Le rendu d’un écran entièrement noir à `0` dépend de l’appareil.
 
 La documentation détaillée des options de configuration est disponible dans le wiki du dépôt.
 

@@ -29,3 +29,12 @@ export interface LaMetricNotificationResponse {
   readonly id?: string;
   readonly success?: boolean;
 }
+
+export interface LaMetricDisplayUpdate {
+  readonly brightness_mode: 'auto' | 'manual';
+  readonly brightness?: number;
+}
+
+export interface LaMetricDisplaySettings extends LaMetricDisplayUpdate {
+  readonly brightness: number;
+}

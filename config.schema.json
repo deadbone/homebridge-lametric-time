@@ -174,6 +174,12 @@
               "default": false,
               "description": "Adds a HomeKit switch that sends a critical test notification to this LaMetric only, then resets to off."
             },
+            "displaySwitch": {
+              "title": "Expose Display Switch",
+              "type": "boolean",
+              "default": false,
+              "description": "Adds a HomeKit switch that sets this LaMetric's display brightness to zero when off and restores its previous brightness settings when on."
+            },
             "silentHours": {
               "title": "Silent Hours",
               "type": "array",
@@ -398,6 +404,7 @@
             "devices[].retryCount",
             "devices[].retryBackoffMs",
             "devices[].connectionTestSwitch",
+            "devices[].displaySwitch",
             {
               "key": "devices[]",
               "type": "fieldset",

@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## Unreleased
+
+### Added
+
+- Added an optional HomeKit display switch for each LaMetric TIME, with brightness restoration after Homebridge restarts.
+
 ## 0.1.11
 
 ### Security
