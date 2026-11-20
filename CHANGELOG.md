@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.17
+
+### Tests
+
+- Cover pending notification replacement when the queue is full and clearing every device queue on shutdown.
+
 ## 0.1.16
 
 ### Fixed

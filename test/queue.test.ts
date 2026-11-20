@@ -23,6 +23,25 @@ describe('DeviceQueue', () => {
     expect(queue.enqueue({ key: 'same', label: 'Same', payload, cooldownMs: 0, run: vi.fn() })).toBe(false);
   });
 
+  it('replaces a pending notification even when the queue is full', async () => {
+    const queue = new DeviceQueue({ maxSize: 1, duplicateStrategy: 'replace' });
+    const inFlight = vi.fn().mockResolvedValue(true);
+    const outdated = vi.fn().mockResolvedValue(true);
+    const latest = vi.fn().mockResolvedValue(true);
+    const rejected = vi.fn().mockResolvedValue(true);
+
+    expect(queue.enqueue({ key: 'running', label: 'Running', payload, cooldownMs: 0, run: inFlight })).toBe(true);
+    expect(queue.enqueue({ key: 'pending', label: 'Outdated', payload, cooldownMs: 0, run: outdated })).toBe(true);
+    expect(queue.enqueue({ key: 'other', label: 'Other', payload, cooldownMs: 0, run: rejected })).toBe(false);
+    expect(queue.enqueue({ key: 'pending', label: 'Latest', payload, cooldownMs: 0, run: latest })).toBe(true);
+    expect(queue.length).toBe(1);
+
+    await vi.waitFor(() => expect(latest).toHaveBeenCalledOnce());
+    expect(inFlight).toHaveBeenCalledOnce();
+    expect(outdated).not.toHaveBeenCalled();
+    expect(rejected).not.toHaveBeenCalled();
+  });
+
   it('processes tasks in order', async () => {
     const order: string[] = [];
     const queue = new DeviceQueue({ maxSize: 10, duplicateStrategy: 'enqueue' });
@@ -39,6 +58,30 @@ describe('DeviceQueue', () => {
     first.enqueue({ key: 'one', label: 'One', payload, cooldownMs: 0, run: async () => order.push('first') > 0 });
     second.enqueue({ key: 'one', label: 'One', payload, cooldownMs: 0, run: async () => order.push('second') > 0 });
     await vi.waitFor(() => expect(order.sort()).toEqual(['first', 'second']));
+  });
+
+  it('drops pending notifications for every device on shutdown', async () => {
+    const manager = new QueueManager();
+    const options = { maxSize: 1, duplicateStrategy: 'enqueue' } as const;
+    const queues = [manager.getQueue('first', options), manager.getQueue('second', options)];
+    const running = Promise.resolve(true);
+    const inFlight = vi.fn(() => running);
+    const waiting = vi.fn().mockResolvedValue(true);
+
+    for (const queue of queues) {
+      expect(queue.enqueue({ key: 'running', label: 'Running', payload, cooldownMs: 0, run: inFlight })).toBe(true);
+      expect(queue.enqueue({ key: 'waiting', label: 'Waiting', payload, cooldownMs: 0, run: waiting })).toBe(true);
+    }
+    expect(inFlight).toHaveBeenCalledTimes(2);
+
+    manager.stopAll();
+
+    for (const queue of queues) {
+      expect(queue.length).toBe(0);
+      expect(queue.enqueue({ key: 'late', label: 'Late', payload, cooldownMs: 0, run: waiting })).toBe(false);
+    }
+    await running;
+    expect(waiting).not.toHaveBeenCalled();
   });
 
   it('uses each task cooldown for messages sharing the same device queue', async () => {
