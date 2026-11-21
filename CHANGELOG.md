@@ -2,6 +2,10 @@
 
 All notable changes to this project are documented in this file.
 
+## Unreleased
+
+- Validate the plugin on Node.js 26 with Homebridge 2.5.0.
+
 ## 0.1.18
 
 ### Fixed
