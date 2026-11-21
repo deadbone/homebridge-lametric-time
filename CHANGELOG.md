@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## 0.1.18
+
+### Fixed
+
+- Include the full Apache-2.0 license in the npm package.
+
 ## 0.1.17
 
 ### Tests
